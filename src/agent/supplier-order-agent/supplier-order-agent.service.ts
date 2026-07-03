@@ -652,7 +652,7 @@ export class SupplierOrderAgentService {
             id: 0,
             productId: product.id,
             productName: product.name,
-            productSku: product.sku,
+            productBarcode: product.barcode,
             quantity: itemToAdd.quantity,
           });
         }
@@ -664,7 +664,7 @@ export class SupplierOrderAgentService {
         const existingItem = items.find((item) => {
           return (
             item.productName.toLowerCase().includes(normalizedQuery) ||
-            item.productSku.toLowerCase().includes(normalizedQuery)
+            item.productBarcode.toLowerCase().includes(normalizedQuery)
           );
         });
 
@@ -692,7 +692,7 @@ export class SupplierOrderAgentService {
         const itemIndex = items.findIndex((item) => {
           return (
             item.productName.toLowerCase().includes(normalizedQuery) ||
-            item.productSku.toLowerCase().includes(normalizedQuery)
+            item.productBarcode.toLowerCase().includes(normalizedQuery)
           );
         });
 

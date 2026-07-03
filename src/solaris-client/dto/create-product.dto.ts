@@ -1,7 +1,8 @@
 export interface CreateProductDto {
   name: string;
   description?: string;
-  sku?: string;
+  barcode?: string;
+  barcodeFormat?: string;
   price: number;
   stockQuantity: number;
   lowStockThreshold?: number;
@@ -11,7 +12,8 @@ export interface CreateProductDto {
 export interface UpdateProductDto {
   name: string;
   description?: string;
-  sku?: string;
+  barcode?: string;
+  barcodeFormat?: string;
   price: number;
   stock: number;
   lowStockThreshold?: number;
@@ -22,7 +24,8 @@ export interface ProductResponseDto {
   id: number;
   name: string;
   description?: string;
-  sku: string;
+  barcode: string;
+  barcodeFormat?: string;
   price: number;
   stockQuantity: number;
   createdAt?: string;

@@ -11,7 +11,7 @@ export interface UpdateProductDraft {
   productName?: string;
   name?: string;
   description?: string;
-  sku?: string;
+  barcode?: string;
   price?: number;
   categoryName?: string;
 }
@@ -73,8 +73,8 @@ export class ProductActionExtractor {
       /(?:precio|price)\s*(?:is|es|:)?\s*(\d+(?:[.,]\d+)?)/i,
     );
 
-    const skuMatch = normalized.match(
-      /(?:sku)\s*(?:is|es|:)?\s*([a-zA-Z0-9-_]+)/i,
+    const barcodeMatch = normalized.match(
+      /(?:barcode|codigo|codigo de barras|barras)\s*(?:is|es|:)?\s*([a-zA-Z0-9-_]+)/i,
     );
 
     const nameMatch = normalized.match(
@@ -95,7 +95,7 @@ export class ProductActionExtractor {
       productQuery,
       name: nameMatch?.[1]?.trim(),
       description: descriptionMatch?.[1]?.trim(),
-      sku: skuMatch?.[1]?.trim(),
+      barcode: barcodeMatch?.[1]?.trim(),
       price: priceMatch ? Number(priceMatch[1].replace(',', '.')) : undefined,
       categoryName: categoryMatch?.[1]?.trim(),
     };

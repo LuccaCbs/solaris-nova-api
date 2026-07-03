@@ -59,7 +59,7 @@ export interface SupplierOrderItemResponseDto {
   id: number;
   productId: number;
   productName: string;
-  productSku: string;
+  productBarcode: string;
   quantity: number;
 }
 
@@ -210,7 +210,7 @@ export class SolarisApiService {
     const searchableProducts = allProducts.map((product) => ({
       ...product,
       normalizedSearchText: this.normalizeSearchText(
-        [product.name, product.sku, product.description, product.categoryName]
+        [product.name, product.barcode, product.description, product.categoryName]
           .filter(Boolean)
           .join(' '),
       ),
@@ -374,7 +374,7 @@ export class SolarisApiService {
 
     return allProducts.filter((product) => {
       const searchableText = this.normalizeSearchText(
-        [product.name, product.sku, product.description, product.categoryName]
+        [product.name, product.barcode, product.description, product.categoryName]
           .filter(Boolean)
           .join(' '),
       );

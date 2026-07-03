@@ -114,7 +114,7 @@ export class ProductAgentService {
             language,
             'products.create.defaultDescription',
           ),
-          sku: '',
+          barcode: '',
           price: draft.price!,
           stockQuantity: draft.stock!,
           lowStockThreshold: 10,
@@ -172,7 +172,7 @@ export class ProductAgentService {
         {
           name: draft.name ?? product.name,
           description: draft.description ?? product.description,
-          sku: draft.sku ?? product.sku,
+          barcode: draft.barcode ?? product.barcode,
           price: draft.price ?? product.price,
           stock: product.stockQuantity,
           lowStockThreshold: product.lowStockThreshold,
@@ -478,7 +478,7 @@ export class ProductAgentService {
     const hasUpdates =
       draft.name !== undefined ||
       draft.description !== undefined ||
-      draft.sku !== undefined ||
+      draft.barcode !== undefined ||
       draft.price !== undefined ||
       draft.categoryName !== undefined;
 
@@ -547,7 +547,7 @@ export class ProductAgentService {
         message: this.novaI18n.t(language, 'products.update.confirm', {
           name: product.name,
           newName: draft.name ?? product.name,
-          sku: draft.sku ?? product.sku ?? '-',
+          barcode: draft.barcode ?? product.barcode ?? '-',
           price: draft.price ?? product.price,
           description: draft.description ?? product.description ?? '-',
           category: draft.categoryName ?? product.categoryName ?? '-',
@@ -645,7 +645,7 @@ export class ProductAgentService {
         intent,
         message: this.novaI18n.t(language, 'products.deactivate.confirm', {
           name: product.name,
-          sku: product.sku ?? '-',
+          barcode: product.barcode ?? '-',
           stock: product.stockQuantity,
           category: product.categoryName ?? '-',
         }),
@@ -736,7 +736,7 @@ export class ProductAgentService {
         intent,
         message: this.novaI18n.t(language, 'products.activate.confirm', {
           name: product.name,
-          sku: product.sku ?? '-',
+          barcode: product.barcode ?? '-',
           stock: product.stockQuantity,
           category: product.categoryName ?? '-',
         }),
@@ -988,7 +988,7 @@ export class ProductAgentService {
     }
   }
 
-  private preferExactProductMatches<T extends { name: string; sku?: string }>(
+  private preferExactProductMatches<T extends { name: string; barcode?: string }>(
     products: T[],
     query: string,
   ): T[] {
@@ -997,7 +997,7 @@ export class ProductAgentService {
     const exactMatches = products.filter((product) => {
       return (
         this.normalizeSearchText(product.name) === normalizedQuery ||
-        this.normalizeSearchText(product.sku ?? '') === normalizedQuery
+        this.normalizeSearchText(product.barcode ?? '') === normalizedQuery
       );
     });
 
