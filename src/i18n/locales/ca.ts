@@ -149,4 +149,5 @@ export const ca: typeof en = {
         'No he identificat cap canvi per aplicar a la comanda al proveïdor.',
     },
   },
+  sales: en.sales,
 };

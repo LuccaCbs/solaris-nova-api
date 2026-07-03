@@ -21,6 +21,9 @@ Internal intents must always be in English:
 - search_supplier
 - update_supplier
 - delete_supplier
+- list_sales
+- show_sale
+- get_daily_sales_summary
 - unknown
 
 Rules:

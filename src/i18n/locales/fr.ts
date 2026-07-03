@@ -169,4 +169,5 @@ export const fr: typeof en = {
         'Je n’ai identifié aucune modification à appliquer à la commande fournisseur.',
     },
   },
+  sales: en.sales,
 };

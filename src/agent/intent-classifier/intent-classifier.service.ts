@@ -21,6 +21,9 @@ export type NovaIntent =
   | 'complete_supplier_order'
   | 'cancel_supplier_order'
   | 'delete_supplier_order'
+  | 'list_sales'
+  | 'show_sale'
+  | 'get_daily_sales_summary'
   | 'unknown';
 
 @Injectable()
@@ -39,6 +42,10 @@ export class IntentClassifierService {
     if (this.matchesCancelSupplierOrder(text)) return 'cancel_supplier_order';
     if (this.matchesDeleteSupplierOrder(text)) return 'delete_supplier_order';
     if (this.matchesUpdateSupplierOrder(text)) return 'update_supplier_order';
+
+    if (this.matchesDailySalesSummary(text)) return 'get_daily_sales_summary';
+    if (this.matchesShowSale(text)) return 'show_sale';
+    if (this.matchesListSales(text)) return 'list_sales';
 
     if (this.matchesCreateSupplier(text)) return 'create_supplier';
     if (this.matchesSearchSupplier(text)) return 'search_supplier';
@@ -293,6 +300,46 @@ export class IntentClassifierService {
       /\b(delete|remove)\s+(supplier\s+)?order\s*#?\s*\d+/i,
       /\b(eliminar|elimina|borrar|borra)\s+(pedido|orden)\s*#?\s*\d+/i,
     ].some((pattern) => pattern.test(text));
+  }
+
+  private matchesDailySalesSummary(text: string): boolean {
+    return this.includesAny(text, [
+      'resumen de ventas',
+      'resumen ventas',
+      'resumen del dia',
+      'resumen del día',
+      'resumen diario de ventas',
+      'daily sales summary',
+      'sales summary',
+      'sales totals',
+    ]);
+  }
+
+  private matchesShowSale(text: string): boolean {
+    return [
+      /\b(show|view|see)\s+sale\s*#?\s*\d+/i,
+      /\b(ver|mostrar|muestra)\s+venta\s*#?\s*\d+/i,
+      /\bventa\s*#?\s*\d+/i,
+      /\bsale\s*#?\s*\d+/i,
+    ].some((pattern) => pattern.test(text));
+  }
+
+  private matchesListSales(text: string): boolean {
+    return this.includesAny(text, [
+      'listar ventas',
+      'lista de ventas',
+      'ver ventas',
+      'mostrar ventas',
+      'ventas de hoy',
+      'ventas de ayer',
+      'ultimas ventas',
+      'últimas ventas',
+      'list sales',
+      'show sales',
+      'sales today',
+      'sales yesterday',
+      'recent sales',
+    ]);
   }
 
   private includesAny(text: string, patterns: string[]): boolean {

@@ -81,6 +81,47 @@ export interface SupplierOrderResponseDto {
   updatedAt: string;
 }
 
+export type SalePaymentMethodDto =
+  | 'CASH'
+  | 'DEBIT_CARD'
+  | 'CREDIT_CARD'
+  | 'TRANSFER'
+  | 'OTHER';
+
+export interface SaleItemResponseDto {
+  id: number;
+  type: 'PRODUCT' | 'CUSTOM';
+  productId: number | null;
+  productName: string | null;
+  customName: string | null;
+  unitLabel: string | null;
+  quantity: number;
+  unitPrice: number;
+  subtotal: number;
+}
+
+export interface SaleResponseDto {
+  id: number;
+  cashRegisterSessionId: number | null;
+  paymentMethod: SalePaymentMethodDto;
+  totalAmount: number;
+  createdAt: string;
+  items: SaleItemResponseDto[];
+  invoiced?: boolean;
+  fiscalDocumentId?: number | null;
+}
+
+export interface DailySalesSummaryResponseDto {
+  date: string;
+  salesCount: number;
+  totalSales: number;
+  cashTotal: number;
+  debitCardTotal: number;
+  creditCardTotal: number;
+  transferTotal: number;
+  otherTotal: number;
+}
+
 @Injectable()
 export class SolarisApiService {
   constructor(
@@ -715,6 +756,59 @@ export class SolarisApiService {
   }
 
   /*SUPPLIER-ORDERS-END*/
+
+  /*SALES-START*/
+
+  async getSales(authorization?: string): Promise<SaleResponseDto[]> {
+    const solarisApiUrl = this.configService.get<string>('SOLARIS_API_URL');
+
+    const response = await firstValueFrom(
+      this.httpService.get<SaleResponseDto[]>(`${solarisApiUrl}/api/v1/sales`, {
+        headers: authorization ? { Authorization: authorization } : undefined,
+      }),
+    );
+
+    return response.data;
+  }
+
+  async getSaleById(
+    id: number,
+    authorization?: string,
+  ): Promise<SaleResponseDto> {
+    const solarisApiUrl = this.configService.get<string>('SOLARIS_API_URL');
+
+    const response = await firstValueFrom(
+      this.httpService.get<SaleResponseDto>(
+        `${solarisApiUrl}/api/v1/sales/${id}`,
+        {
+          headers: authorization ? { Authorization: authorization } : undefined,
+        },
+      ),
+    );
+
+    return response.data;
+  }
+
+  async getDailySalesSummary(
+    authorization?: string,
+    date?: string,
+  ): Promise<DailySalesSummaryResponseDto> {
+    const solarisApiUrl = this.configService.get<string>('SOLARIS_API_URL');
+
+    const response = await firstValueFrom(
+      this.httpService.get<DailySalesSummaryResponseDto>(
+        `${solarisApiUrl}/api/v1/sales/daily-summary`,
+        {
+          params: date ? { date } : undefined,
+          headers: authorization ? { Authorization: authorization } : undefined,
+        },
+      ),
+    );
+
+    return response.data;
+  }
+
+  /*SALES-END*/
 
   async getLowStockProducts(
     authorization?: string,

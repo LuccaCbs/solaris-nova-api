@@ -215,4 +215,22 @@ export const en = {
         'I could not identify any changes to apply to the supplier order.',
     },
   },
+  sales: {
+    list: {
+      found: 'I found {{count}} sale(s){{dateSuffix}}.',
+      empty: 'I found no sales{{dateSuffix}}.',
+      error: 'I could not fetch sales from Solaris.',
+    },
+    show: {
+      missingSaleId:
+        'I need the sale number. Example: "Show sale #13".',
+      found: 'I found sale #{{id}}.',
+      error: 'I could not fetch the sale details.',
+    },
+    summary: {
+      found:
+        'Sales summary for {{date}}: {{count}} sale(s) totaling ${{total}}.',
+      error: 'I could not fetch the daily sales summary.',
+    },
+  },
 };

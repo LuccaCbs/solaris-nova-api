@@ -9,6 +9,7 @@ import { SupplierAgentService } from '../supplier-agent/supplier-agent.service';
 import { ProductAgentService } from '../product-agent/product-agent.service';
 import { CategoryAgentService } from '../category-agent/category-agent.service';
 import { SupplierOrderAgentService } from '../supplier-order-agent/supplier-order-agent.service';
+import { SalesAgentService } from '../sales-agent/sales-agent.service';
 import {
   UpdateStockDraft,
   CreateCategoryDraft,
@@ -38,6 +39,7 @@ export class NovaAgentService {
     private readonly productAgentService: ProductAgentService,
     private readonly categoryAgentService: CategoryAgentService,
     private readonly supplierOrderAgentService: SupplierOrderAgentService,
+    private readonly salesAgentService: SalesAgentService,
   ) {}
 
   resetConversation(language = 'es'): ChatResponseDto {
@@ -363,6 +365,31 @@ export class NovaAgentService {
 
       case 'get_dashboard_summary':
         return this.handleGetDashboardSummary(authorization, intent, language);
+
+      case 'list_sales':
+        return this.salesAgentService.handleListSales(
+          message,
+          authorization,
+          intent,
+          language,
+        );
+
+      case 'show_sale':
+        return this.salesAgentService.handleShowSale(
+          message,
+          authorization,
+          intent,
+          language,
+        );
+
+      case 'get_daily_sales_summary':
+        return this.salesAgentService.handleDailySalesSummary(
+          message,
+          authorization,
+          intent,
+          language,
+        );
+
       default:
         return {
           type: 'message',

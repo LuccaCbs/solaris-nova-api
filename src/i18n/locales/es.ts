@@ -213,4 +213,21 @@ export const es = {
         'No pude identificar cambios para aplicar al pedido a proveedor.',
     },
   },
+  sales: {
+    list: {
+      found: 'Encontré {{count}} venta(s){{dateSuffix}}.',
+      empty: 'No encontré ventas{{dateSuffix}}.',
+      error: 'No pude consultar las ventas en Solaris.',
+    },
+    show: {
+      missingSaleId: 'Necesito que indiques el número de venta. Ejemplo: "Ver venta #13".',
+      found: 'Encontré la venta #{{id}}.',
+      error: 'No pude obtener el detalle de la venta.',
+    },
+    summary: {
+      found:
+        'Resumen de ventas del {{date}}: {{count}} venta(s) por un total de ${{total}}.',
+      error: 'No pude obtener el resumen de ventas del día.',
+    },
+  },
 };
