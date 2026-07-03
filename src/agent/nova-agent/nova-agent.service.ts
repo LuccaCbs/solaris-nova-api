@@ -10,6 +10,8 @@ import { ProductAgentService } from '../product-agent/product-agent.service';
 import { CategoryAgentService } from '../category-agent/category-agent.service';
 import { SupplierOrderAgentService } from '../supplier-order-agent/supplier-order-agent.service';
 import { SalesAgentService } from '../sales-agent/sales-agent.service';
+import { CustomerAgentService } from '../customer-agent/customer-agent.service';
+import { FiscalAgentService } from '../fiscal-agent/fiscal-agent.service';
 import {
   UpdateStockDraft,
   CreateCategoryDraft,
@@ -27,6 +29,8 @@ import {
   SupplierOrderActionDraft,
   UpdateSupplierOrderDraft,
 } from '../extractors/supplier-order-action.extractor';
+import { CreateSaleDraft } from '../extractors/sales-action.extractor';
+import { EmitInvoiceDraft } from '../extractors/fiscal-action.extractor';
 @Injectable()
 export class NovaAgentService {
   constructor(
@@ -40,6 +44,8 @@ export class NovaAgentService {
     private readonly categoryAgentService: CategoryAgentService,
     private readonly supplierOrderAgentService: SupplierOrderAgentService,
     private readonly salesAgentService: SalesAgentService,
+    private readonly customerAgentService: CustomerAgentService,
+    private readonly fiscalAgentService: FiscalAgentService,
   ) {}
 
   resetConversation(language = 'es'): ChatResponseDto {
@@ -176,6 +182,22 @@ export class NovaAgentService {
       if (pendingAction.intent === 'update_supplier_order') {
         return this.supplierOrderAgentService.confirmUpdateSupplierOrder(
           pendingAction.data as UpdateSupplierOrderDraft,
+          authorization,
+          language,
+        );
+      }
+
+      if (pendingAction.intent === 'create_sale') {
+        return this.salesAgentService.confirmCreateSale(
+          pendingAction.data as CreateSaleDraft,
+          authorization,
+          language,
+        );
+      }
+
+      if (pendingAction.intent === 'emit_invoice') {
+        return this.fiscalAgentService.confirmEmitInvoice(
+          pendingAction.data as EmitInvoiceDraft,
           authorization,
           language,
         );
@@ -384,6 +406,53 @@ export class NovaAgentService {
 
       case 'get_daily_sales_summary':
         return this.salesAgentService.handleDailySalesSummary(
+          message,
+          authorization,
+          intent,
+          language,
+        );
+
+      case 'search_customer':
+        return this.customerAgentService.handleSearchCustomer(
+          message,
+          authorization,
+          intent,
+          language,
+        );
+
+      case 'show_customer':
+        return this.customerAgentService.handleShowCustomer(
+          message,
+          authorization,
+          intent,
+          language,
+        );
+
+      case 'list_fiscal_documents':
+        return this.fiscalAgentService.handleListFiscalDocuments(
+          authorization,
+          intent,
+          language,
+        );
+
+      case 'show_fiscal_document':
+        return this.fiscalAgentService.handleShowFiscalDocument(
+          message,
+          authorization,
+          intent,
+          language,
+        );
+
+      case 'create_sale':
+        return this.salesAgentService.handleCreateSale(
+          message,
+          authorization,
+          intent,
+          language,
+        );
+
+      case 'emit_invoice':
+        return this.fiscalAgentService.handleEmitInvoice(
           message,
           authorization,
           intent,

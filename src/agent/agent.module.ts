@@ -11,6 +11,8 @@ import { ProductAgentService } from './product-agent/product-agent.service';
 import { CategoryAgentService } from './category-agent/category-agent.service';
 import { SupplierOrderAgentService } from './supplier-order-agent/supplier-order-agent.service';
 import { SalesAgentService } from './sales-agent/sales-agent.service';
+import { CustomerAgentService } from './customer-agent/customer-agent.service';
+import { FiscalAgentService } from './fiscal-agent/fiscal-agent.service';
 
 @Module({
   imports: [SolarisClientModule, NovaI18nModule],
@@ -25,6 +27,8 @@ import { SalesAgentService } from './sales-agent/sales-agent.service';
     CategoryAgentService,
     SupplierOrderAgentService,
     SalesAgentService,
+    CustomerAgentService,
+    FiscalAgentService,
   ],
   exports: [NovaAgentService, GeminiAgentService],
 })

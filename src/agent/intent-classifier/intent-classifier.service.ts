@@ -24,6 +24,12 @@ export type NovaIntent =
   | 'list_sales'
   | 'show_sale'
   | 'get_daily_sales_summary'
+  | 'search_customer'
+  | 'show_customer'
+  | 'list_fiscal_documents'
+  | 'show_fiscal_document'
+  | 'create_sale'
+  | 'emit_invoice'
   | 'unknown';
 
 @Injectable()
@@ -43,9 +49,18 @@ export class IntentClassifierService {
     if (this.matchesDeleteSupplierOrder(text)) return 'delete_supplier_order';
     if (this.matchesUpdateSupplierOrder(text)) return 'update_supplier_order';
 
+    if (this.matchesEmitInvoice(text)) return 'emit_invoice';
+    if (this.matchesCreateSale(text)) return 'create_sale';
+
     if (this.matchesDailySalesSummary(text)) return 'get_daily_sales_summary';
     if (this.matchesShowSale(text)) return 'show_sale';
     if (this.matchesListSales(text)) return 'list_sales';
+
+    if (this.matchesShowFiscalDocument(text)) return 'show_fiscal_document';
+    if (this.matchesListFiscalDocuments(text)) return 'list_fiscal_documents';
+
+    if (this.matchesShowCustomer(text)) return 'show_customer';
+    if (this.matchesSearchCustomer(text)) return 'search_customer';
 
     if (this.matchesCreateSupplier(text)) return 'create_supplier';
     if (this.matchesSearchSupplier(text)) return 'search_supplier';
@@ -302,6 +317,22 @@ export class IntentClassifierService {
     ].some((pattern) => pattern.test(text));
   }
 
+  private matchesCreateSale(text: string): boolean {
+    return [
+      /\b(crear|crea|registrar|registra|nueva|new|create|register)\s+(?:una\s+)?venta\b/i,
+      /\b(crear|crea|register|create)\s+sale\b/i,
+    ].some((pattern) => pattern.test(text));
+  }
+
+  private matchesEmitInvoice(text: string): boolean {
+    return [
+      /\b(facturar|emitir)\s+(?:la\s+)?venta\b/i,
+      /\b(emitir|generar)\s+(?:una\s+)?(?:factura|comprobante)\b/i,
+      /\b(emit|invoice)\s+(?:the\s+)?sale\b/i,
+      /\b(emit|issue)\s+(?:an?\s+)?invoice\b/i,
+    ].some((pattern) => pattern.test(text));
+  }
+
   private matchesDailySalesSummary(text: string): boolean {
     return this.includesAny(text, [
       'resumen de ventas',
@@ -340,6 +371,48 @@ export class IntentClassifierService {
       'sales yesterday',
       'recent sales',
     ]);
+  }
+
+  private matchesSearchCustomer(text: string): boolean {
+    return this.includesAny(text, [
+      'buscar cliente',
+      'busca cliente',
+      'mostrar cliente',
+      'ver cliente',
+      'search customer',
+      'find customer',
+      'show customer',
+    ]);
+  }
+
+  private matchesShowCustomer(text: string): boolean {
+    return [
+      /\b(show|view|see)\s+customer\s*#?\s*\d+/i,
+      /\b(ver|mostrar|muestra)\s+cliente\s*#?\s*\d+/i,
+      /\bcliente\s*#?\s*\d+/i,
+      /\bcustomer\s*#?\s*\d+/i,
+    ].some((pattern) => pattern.test(text));
+  }
+
+  private matchesListFiscalDocuments(text: string): boolean {
+    return this.includesAny(text, [
+      'listar comprobantes',
+      'ver comprobantes',
+      'mostrar comprobantes',
+      'comprobantes fiscales',
+      'facturas emitidas',
+      'list fiscal documents',
+      'show fiscal documents',
+      'show invoices',
+    ]);
+  }
+
+  private matchesShowFiscalDocument(text: string): boolean {
+    return [
+      /\b(show|view|see)\s+(?:fiscal\s+)?(?:document|invoice|comprobante|factura)\s*#?\s*\d+/i,
+      /\b(ver|mostrar|muestra)\s+(?:comprobante|factura)\s*#?\s*\d+/i,
+      /\b(?:comprobante|factura)\s*#?\s*\d+/i,
+    ].some((pattern) => pattern.test(text));
   }
 
   private includesAny(text: string, patterns: string[]): boolean {

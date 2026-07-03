@@ -16,6 +16,8 @@ import {
   SupplierOrderActionDraft,
   UpdateSupplierOrderDraft,
 } from '../extractors/supplier-order-action.extractor';
+import { CreateSaleDraft } from '../extractors/sales-action.extractor';
+import { EmitInvoiceDraft } from '../extractors/fiscal-action.extractor';
 
 export type PendingActionType =
   | 'create_product'
@@ -31,7 +33,9 @@ export type PendingActionType =
   | 'update_supplier_order'
   | 'complete_supplier_order'
   | 'cancel_supplier_order'
-  | 'delete_supplier_order';
+  | 'delete_supplier_order'
+  | 'create_sale'
+  | 'emit_invoice';
 
 export interface PendingAction {
   type: PendingActionType;
@@ -48,6 +52,8 @@ export interface PendingAction {
     | DeleteSupplierDraft
     | CreateSupplierOrderDraft
     | SupplierOrderActionDraft
-    | UpdateSupplierOrderDraft;
+    | UpdateSupplierOrderDraft
+    | CreateSaleDraft
+    | EmitInvoiceDraft;
   createdAt: Date;
 }

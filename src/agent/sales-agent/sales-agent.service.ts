@@ -1,11 +1,16 @@
 import { Injectable } from '@nestjs/common';
 import { ChatResponseDto } from '../../chat/dto/chat-response.dto';
 import {
+  SalePaymentMethodDto,
   SaleResponseDto,
   SolarisApiService,
 } from '../../solaris-client/solaris-api/solaris-api.service';
 import { NovaI18nService } from '../../i18n/nova-i18n/nova-i18n.service';
-import { SalesActionExtractor } from '../extractors/sales-action.extractor';
+import { ConfirmationStateService } from '../confirmation-state/confirmation-state.service';
+import {
+  CreateSaleDraft,
+  SalesActionExtractor,
+} from '../extractors/sales-action.extractor';
 
 const MAX_LIST_SALES = 15;
 
@@ -14,6 +19,7 @@ export class SalesAgentService {
   constructor(
     private readonly solarisApiService: SolarisApiService,
     private readonly novaI18n: NovaI18nService,
+    private readonly confirmationState: ConfirmationStateService,
   ) {}
 
   async handleListSales(
@@ -142,6 +148,167 @@ export class SalesAgentService {
         },
       };
     }
+  }
+
+  async handleCreateSale(
+    message: string,
+    authorization: string | undefined,
+    intent: 'create_sale',
+    language = 'es',
+  ): Promise<ChatResponseDto> {
+    const draft = SalesActionExtractor.extractCreateSaleDraft(message);
+    const paymentMethod = draft.paymentMethod ?? 'CASH';
+
+    if (draft.items.length === 0) {
+      return {
+        type: 'message',
+        intent,
+        message: this.novaI18n.t(language, 'sales.create.missingItems'),
+        data: draft,
+      };
+    }
+
+    try {
+      const resolvedItems = await Promise.all(
+        draft.items.map(async (item) => {
+          const products = await this.solarisApiService.smartSearchProducts(
+            item.productQuery,
+            authorization,
+            true,
+          );
+
+          if (products.length !== 1) {
+            return {
+              ...item,
+              matches: products,
+            };
+          }
+
+          const product = products[0];
+
+          return {
+            ...item,
+            productId: product.id,
+            productName: product.name,
+          };
+        }),
+      );
+
+      const unresolvedItems = resolvedItems.filter((item) => !item.productId);
+
+      if (unresolvedItems.length > 0) {
+        return {
+          type: 'message',
+          intent,
+          message: this.novaI18n.t(
+            language,
+            'sales.create.unresolvedProducts',
+          ),
+          data: unresolvedItems,
+        };
+      }
+
+      const completedDraft: CreateSaleDraft = {
+        paymentMethod,
+        items: resolvedItems.map((item) => ({
+          productQuery: item.productQuery,
+          productId: item.productId,
+          productName: item.productName,
+          quantity: item.quantity,
+        })),
+      };
+
+      this.confirmationState.savePendingAction({
+        type: 'create_sale',
+        intent: 'create_sale',
+        data: completedDraft,
+        createdAt: new Date(),
+      });
+
+      return {
+        type: 'confirmation',
+        intent,
+        message: this.novaI18n.t(language, 'sales.create.confirm', {
+          paymentMethod: this.formatPaymentMethod(paymentMethod, language),
+          items: completedDraft.items
+            .map((item) => `- ${item.productName} x ${item.quantity}`)
+            .join('\n'),
+        }),
+        data: completedDraft,
+      };
+    } catch (error: unknown) {
+      return {
+        type: 'error',
+        intent,
+        message: this.novaI18n.t(language, 'sales.create.error'),
+        data: {
+          draft,
+          errorMessage: error instanceof Error ? error.message : String(error),
+        },
+      };
+    }
+  }
+
+  async confirmCreateSale(
+    draft: CreateSaleDraft,
+    authorization?: string,
+    language = 'es',
+  ): Promise<ChatResponseDto> {
+    const paymentMethod = draft.paymentMethod ?? 'CASH';
+
+    if (draft.items.length === 0 || draft.items.some((item) => !item.productId)) {
+      return {
+        type: 'error',
+        intent: 'create_sale',
+        message: this.novaI18n.t(language, 'sales.create.invalidDraft'),
+        data: draft,
+      };
+    }
+
+    try {
+      const result = await this.solarisApiService.createSale(
+        {
+          paymentMethod,
+          items: draft.items.map((item) => ({
+            type: 'PRODUCT',
+            productId: item.productId!,
+            quantity: item.quantity,
+          })),
+        },
+        authorization,
+      );
+
+      this.confirmationState.clearPendingAction();
+
+      return {
+        type: 'tool_result',
+        intent: 'create_sale',
+        message: this.novaI18n.t(language, 'sales.create.created', {
+          id: result.id,
+          total: result.totalAmount,
+        }),
+        data: result,
+      };
+    } catch (error: unknown) {
+      return {
+        type: 'error',
+        intent: 'create_sale',
+        message: this.novaI18n.t(language, 'sales.create.error'),
+        data: {
+          draft,
+          errorMessage: error instanceof Error ? error.message : String(error),
+        },
+      };
+    }
+  }
+
+  private formatPaymentMethod(
+    paymentMethod: SalePaymentMethodDto,
+    language: string,
+  ): string {
+    const key = `sales.paymentMethod.${paymentMethod}`;
+
+    return this.novaI18n.t(language, key);
   }
 
   private filterSalesByDate(

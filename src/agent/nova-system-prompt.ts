@@ -24,6 +24,12 @@ Internal intents must always be in English:
 - list_sales
 - show_sale
 - get_daily_sales_summary
+- search_customer
+- show_customer
+- list_fiscal_documents
+- show_fiscal_document
+- create_sale
+- emit_invoice
 - unknown
 
 Rules:

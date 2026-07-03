@@ -229,5 +229,64 @@ export const es = {
         'Resumen de ventas del {{date}}: {{count}} venta(s) por un total de ${{total}}.',
       error: 'No pude obtener el resumen de ventas del día.',
     },
+    paymentMethod: {
+      CASH: 'Efectivo',
+      DEBIT_CARD: 'Tarjeta de débito',
+      CREDIT_CARD: 'Tarjeta de crédito',
+      TRANSFER: 'Transferencia',
+      OTHER: 'Otro',
+    },
+    create: {
+      missingItems:
+        'Para registrar una venta necesito que indiques al menos un producto con cantidad. Ejemplo: "Crear venta en efectivo con 2 Coca Cola".',
+      unresolvedProducts:
+        'No pude identificar con certeza uno o más productos. Probá ser más específico con el nombre.',
+      confirm:
+        'Entendí que querés registrar la siguiente venta:\n\nMedio de pago: {{paymentMethod}}\n\nProductos:\n{{items}}\n\n¿Confirmás la venta?',
+      invalidDraft: 'El borrador de venta no tiene el formato esperado.',
+      created: 'Venta #{{id}} registrada correctamente. Total: ${{total}}.',
+      error: 'No pude registrar la venta en Solaris.',
+    },
+  },
+  customers: {
+    search: {
+      askQuery:
+        'Indicá qué cliente querés buscar. Ejemplo: "Buscar cliente Lucca Vergara".',
+      found: 'Encontré {{count}} cliente(s) para "{{query}}".',
+      notFound: 'No encontré clientes para "{{query}}".',
+      error: 'No pude buscar clientes en Solaris.',
+    },
+    show: {
+      missingCustomerId:
+        'Necesito el número de cliente. Ejemplo: "Ver cliente #5".',
+      found: 'Encontré el cliente #{{id}}.',
+      error: 'No pude obtener el detalle del cliente.',
+    },
+  },
+  fiscalDocuments: {
+    list: {
+      found: 'Encontré {{count}} comprobante(s) fiscal(es).',
+      empty: 'No hay comprobantes fiscales emitidos.',
+      error: 'No pude consultar los comprobantes fiscales.',
+    },
+    show: {
+      missingDocumentId:
+        'Necesito el número de comprobante. Ejemplo: "Ver comprobante #4".',
+      found: 'Encontré el comprobante fiscal #{{id}}.',
+      error: 'No pude obtener el detalle del comprobante.',
+    },
+    emit: {
+      missingSaleId:
+        'Necesito el número de venta a facturar. Ejemplo: "Facturar venta #13".',
+      alreadyInvoiced: 'La venta #{{id}} ya tiene un comprobante fiscal emitido.',
+      multipleCustomers:
+        'Encontré varios clientes para "{{query}}". Necesito que seas más específico.',
+      defaultCustomer: 'Consumidor Final',
+      confirm:
+        'Entendí que querés emitir factura para la venta #{{saleId}} (${{total}}) a nombre de {{customer}}.\n\n¿Confirmás la emisión?',
+      invalidDraft: 'El borrador de facturación no tiene el formato esperado.',
+      created: 'Comprobante fiscal #{{id}} emitido con estado {{status}}.',
+      error: 'No pude emitir el comprobante fiscal.',
+    },
   },
 };

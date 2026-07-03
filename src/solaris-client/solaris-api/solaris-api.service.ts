@@ -122,6 +122,68 @@ export interface DailySalesSummaryResponseDto {
   otherTotal: number;
 }
 
+export interface CreateSaleItemRequestDto {
+  type: 'PRODUCT';
+  productId: number;
+  quantity: number;
+}
+
+export interface CreateSaleRequestDto {
+  paymentMethod: SalePaymentMethodDto;
+  items: CreateSaleItemRequestDto[];
+}
+
+export interface EmitInvoiceRequestDto {
+  customerId?: number;
+}
+
+export type CustomerDocumentTypeDto = 'CUIT' | 'CUIL' | 'DNI';
+
+export type CustomerCondicionIvaDto =
+  | 'RESPONSABLE_INSCRIPTO'
+  | 'MONOTRIBUTO'
+  | 'EXENTO'
+  | 'CONSUMIDOR_FINAL'
+  | 'NO_CATEGORIZADO';
+
+export interface CustomerResponseDto {
+  id: number;
+  documentType: CustomerDocumentTypeDto;
+  documentNumber: string;
+  razonSocial: string;
+  email: string | null;
+  phone: string | null;
+  address: string | null;
+  condicionIva: CustomerCondicionIvaDto;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export type FiscalDocumentStatusDto = 'PENDING' | 'AUTHORIZED' | 'REJECTED';
+
+export type TipoComprobanteDto = 'FACTURA_B' | 'FACTURA_C';
+
+export interface FiscalDocumentResponseDto {
+  id: number;
+  organizationId: number;
+  storeId: number | null;
+  saleId: number | null;
+  customerId: number | null;
+  customerRazonSocial: string;
+  tipoComprobante: TipoComprobanteDto;
+  puntoVenta: number;
+  numeroComprobante: number;
+  cae: string | null;
+  caeVencimiento: string | null;
+  importeNeto: number;
+  importeIva: number;
+  importeTotal: number;
+  status: FiscalDocumentStatusDto;
+  rejectionReason?: string | null;
+  pdfUrl: string | null;
+  createdAt: string;
+}
+
 @Injectable()
 export class SolarisApiService {
   constructor(
@@ -808,7 +870,151 @@ export class SolarisApiService {
     return response.data;
   }
 
+  async createSale(
+    payload: CreateSaleRequestDto,
+    authorization?: string,
+  ): Promise<SaleResponseDto> {
+    const solarisApiUrl = this.configService.get<string>('SOLARIS_API_URL');
+
+    const response = await firstValueFrom(
+      this.httpService.post<SaleResponseDto>(
+        `${solarisApiUrl}/api/v1/sales`,
+        payload,
+        {
+          headers: authorization ? { Authorization: authorization } : undefined,
+        },
+      ),
+    );
+
+    return response.data;
+  }
+
+  async emitInvoiceForSale(
+    saleId: number,
+    payload: EmitInvoiceRequestDto,
+    authorization?: string,
+  ): Promise<FiscalDocumentResponseDto> {
+    const solarisApiUrl = this.configService.get<string>('SOLARIS_API_URL');
+
+    const response = await firstValueFrom(
+      this.httpService.post<FiscalDocumentResponseDto>(
+        `${solarisApiUrl}/api/v1/sales/${saleId}/invoice`,
+        payload,
+        {
+          headers: authorization ? { Authorization: authorization } : undefined,
+        },
+      ),
+    );
+
+    return response.data;
+  }
+
   /*SALES-END*/
+
+  /*CUSTOMERS-START*/
+
+  async getCustomers(authorization?: string): Promise<CustomerResponseDto[]> {
+    const solarisApiUrl = this.configService.get<string>('SOLARIS_API_URL');
+
+    const response = await firstValueFrom(
+      this.httpService.get<CustomerResponseDto[]>(
+        `${solarisApiUrl}/api/v1/customers`,
+        {
+          headers: authorization ? { Authorization: authorization } : undefined,
+        },
+      ),
+    );
+
+    return response.data;
+  }
+
+  async getCustomerById(
+    id: number,
+    authorization?: string,
+  ): Promise<CustomerResponseDto> {
+    const solarisApiUrl = this.configService.get<string>('SOLARIS_API_URL');
+
+    const response = await firstValueFrom(
+      this.httpService.get<CustomerResponseDto>(
+        `${solarisApiUrl}/api/v1/customers/${id}`,
+        {
+          headers: authorization ? { Authorization: authorization } : undefined,
+        },
+      ),
+    );
+
+    return response.data;
+  }
+
+  async smartSearchCustomers(
+    query: string,
+    authorization?: string,
+  ): Promise<CustomerResponseDto[]> {
+    const customers = await this.getCustomers(authorization);
+    const normalizedQuery = this.normalizeSearchText(query);
+
+    if (!normalizedQuery) {
+      return customers;
+    }
+
+    return customers.filter((customer) => {
+      const searchableText = this.normalizeSearchText(
+        [
+          customer.razonSocial,
+          customer.documentNumber,
+          customer.email,
+          customer.phone,
+          customer.address,
+          customer.documentType,
+        ]
+          .filter(Boolean)
+          .join(' '),
+      );
+
+      return searchableText.includes(normalizedQuery);
+    });
+  }
+
+  /*CUSTOMERS-END*/
+
+  /*FISCAL-DOCUMENTS-START*/
+
+  async getFiscalDocuments(
+    authorization?: string,
+  ): Promise<FiscalDocumentResponseDto[]> {
+    const solarisApiUrl = this.configService.get<string>('SOLARIS_API_URL');
+
+    const response = await firstValueFrom(
+      this.httpService.get<FiscalDocumentResponseDto[]>(
+        `${solarisApiUrl}/api/v1/fiscal-documents`,
+        {
+          headers: authorization ? { Authorization: authorization } : undefined,
+        },
+      ),
+    );
+
+    return response.data;
+  }
+
+  async getFiscalDocumentById(
+    id: number,
+    authorization?: string,
+  ): Promise<FiscalDocumentResponseDto> {
+    const solarisApiUrl = this.configService.get<string>('SOLARIS_API_URL');
+
+    const response = await firstValueFrom(
+      this.httpService.get<FiscalDocumentResponseDto>(
+        `${solarisApiUrl}/api/v1/fiscal-documents/${id}`,
+        {
+          headers: authorization ? { Authorization: authorization } : undefined,
+        },
+      ),
+    );
+
+    return response.data;
+  }
+
+  /*FISCAL-DOCUMENTS-END*/
 
   async getLowStockProducts(
     authorization?: string,

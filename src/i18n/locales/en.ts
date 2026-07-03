@@ -232,5 +232,64 @@ export const en = {
         'Sales summary for {{date}}: {{count}} sale(s) totaling ${{total}}.',
       error: 'I could not fetch the daily sales summary.',
     },
+    paymentMethod: {
+      CASH: 'Cash',
+      DEBIT_CARD: 'Debit card',
+      CREDIT_CARD: 'Credit card',
+      TRANSFER: 'Transfer',
+      OTHER: 'Other',
+    },
+    create: {
+      missingItems:
+        'To register a sale I need at least one product with quantity. Example: "Create cash sale with 2 Coca Cola".',
+      unresolvedProducts:
+        'I could not identify one or more products with certainty. Try being more specific.',
+      confirm:
+        'I understood that you want to register this sale:\n\nPayment method: {{paymentMethod}}\n\nItems:\n{{items}}\n\nDo you confirm the sale?',
+      invalidDraft: 'The sale draft is not in the expected format.',
+      created: 'Sale #{{id}} registered successfully. Total: ${{total}}.',
+      error: 'I could not register the sale in Solaris.',
+    },
+  },
+  customers: {
+    search: {
+      askQuery:
+        'Tell me which customer to search for. Example: "Search customer John Doe".',
+      found: 'I found {{count}} customer(s) for "{{query}}".',
+      notFound: 'I found no customers for "{{query}}".',
+      error: 'I could not search customers in Solaris.',
+    },
+    show: {
+      missingCustomerId:
+        'I need the customer number. Example: "Show customer #5".',
+      found: 'I found customer #{{id}}.',
+      error: 'I could not fetch the customer details.',
+    },
+  },
+  fiscalDocuments: {
+    list: {
+      found: 'I found {{count}} fiscal document(s).',
+      empty: 'There are no fiscal documents yet.',
+      error: 'I could not fetch fiscal documents.',
+    },
+    show: {
+      missingDocumentId:
+        'I need the document number. Example: "Show invoice #4".',
+      found: 'I found fiscal document #{{id}}.',
+      error: 'I could not fetch the document details.',
+    },
+    emit: {
+      missingSaleId:
+        'I need the sale number to invoice. Example: "Invoice sale #13".',
+      alreadyInvoiced: 'Sale #{{id}} already has a fiscal document.',
+      multipleCustomers:
+        'I found multiple customers for "{{query}}". Please be more specific.',
+      defaultCustomer: 'Final consumer',
+      confirm:
+        'I understood that you want to issue an invoice for sale #{{saleId}} (${{total}}) to {{customer}}.\n\nDo you confirm?',
+      invalidDraft: 'The invoice draft is not in the expected format.',
+      created: 'Fiscal document #{{id}} issued with status {{status}}.',
+      error: 'I could not issue the fiscal document.',
+    },
   },
 };
