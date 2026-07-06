@@ -217,8 +217,12 @@ export const en = {
   },
   sales: {
     list: {
-      found: 'I found {{count}} sale(s){{dateSuffix}}.',
-      empty: 'I found no sales{{dateSuffix}}.',
+      found:
+        'I found {{count}} sale(s){{dateSuffix}}{{scopeSuffix}} ({{totalCount}} total).',
+      empty: 'I found no sales{{dateSuffix}}{{scopeSuffix}}.',
+      truncated: 'Showing the {{shown}} most recent sales out of {{total}}.',
+      volumeWarning:
+        'There are {{total}} sales in this period (more than {{threshold}}). For large volumes I recommend exporting Excel with a from/to date range, e.g. "Sales report from 07/01/2026 to 07/06/2026".',
       error: 'I could not fetch sales from Solaris.',
     },
     show: {
@@ -249,6 +253,17 @@ export const en = {
       invalidDraft: 'The sale draft is not in the expected format.',
       created: 'Sale #{{id}} registered successfully. Total: ${{total}}.',
       error: 'I could not register the sale in Solaris.',
+    },
+  },
+  reports: {
+    missingModule:
+      'I need to know which report to generate. Example: "Sales report for today".',
+    moduleNotSupported:
+      'I cannot generate reports for "{{module}}" yet. Sales is available now.',
+    sales: {
+      ready:
+        'Done. The sales report has {{count}} record(s) from {{from}} to {{to}}. Use the link to download the Excel file.',
+      error: 'I could not generate the sales report.',
     },
   },
   customers: {

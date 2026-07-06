@@ -22,6 +22,7 @@ Internal intents must always be in English:
 - update_supplier
 - delete_supplier
 - list_sales
+- export_report
 - show_sale
 - get_daily_sales_summary
 - search_customer

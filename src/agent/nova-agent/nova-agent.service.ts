@@ -412,6 +412,14 @@ export class NovaAgentService {
           language,
         );
 
+      case 'export_report':
+        return this.salesAgentService.handleExportReport(
+          message,
+          authorization,
+          intent,
+          language,
+        );
+
       case 'search_customer':
         return this.customerAgentService.handleSearchCustomer(
           message,

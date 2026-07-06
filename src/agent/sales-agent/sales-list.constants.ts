@@ -1,0 +1,2 @@
+export const MAX_LIST_SALES = 15;
+export const SALES_VOLUME_WARNING_THRESHOLD = 50;

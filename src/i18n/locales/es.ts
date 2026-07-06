@@ -215,8 +215,13 @@ export const es = {
   },
   sales: {
     list: {
-      found: 'Encontré {{count}} venta(s){{dateSuffix}}.',
-      empty: 'No encontré ventas{{dateSuffix}}.',
+      found:
+        'Encontré {{count}} venta(s){{dateSuffix}}{{scopeSuffix}} ({{totalCount}} en total).',
+      empty: 'No encontré ventas{{dateSuffix}}{{scopeSuffix}}.',
+      truncated:
+        'Mostrando las {{shown}} ventas más recientes de {{total}}.',
+      volumeWarning:
+        'Hay {{total}} ventas en este período (más de {{threshold}}). Para analizar volúmenes grandes te recomiendo exportar Excel indicando fechas desde/hasta, por ejemplo: "Ver informe de ventas desde 01/07/2026 hasta 06/07/2026".',
       error: 'No pude consultar las ventas en Solaris.',
     },
     show: {
@@ -246,6 +251,17 @@ export const es = {
       invalidDraft: 'El borrador de venta no tiene el formato esperado.',
       created: 'Venta #{{id}} registrada correctamente. Total: ${{total}}.',
       error: 'No pude registrar la venta en Solaris.',
+    },
+  },
+  reports: {
+    missingModule:
+      'Necesito saber qué informe querés generar. Ejemplo: "Ver informe de ventas del día".',
+    moduleNotSupported:
+      'Todavía no puedo generar informes para "{{module}}". Por ahora está disponible ventas.',
+    sales: {
+      ready:
+        'Listo. Generé el informe de ventas con {{count}} registro(s) del {{from}} al {{to}}. Usá el enlace para descargar el Excel.',
+      error: 'No pude generar el informe de ventas.',
     },
   },
   customers: {

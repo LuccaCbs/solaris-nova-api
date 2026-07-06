@@ -11,8 +11,25 @@ import {
   CreateSaleDraft,
   SalesActionExtractor,
 } from '../extractors/sales-action.extractor';
+import { ReportActionExtractor } from '../extractors/report-action.extractor';
+import {
+  MAX_LIST_SALES,
+  SALES_VOLUME_WARNING_THRESHOLD,
+} from './sales-list.constants';
 
-const MAX_LIST_SALES = 15;
+export interface SalesListResult {
+  items: SaleResponseDto[];
+  totalCount: number;
+  volumeThreshold: number;
+}
+
+export interface SalesExportReportResult {
+  module: 'sales';
+  from: string;
+  to: string;
+  sales: SaleResponseDto[];
+  totalCount: number;
+}
 
 @Injectable()
 export class SalesAgentService {
@@ -32,7 +49,14 @@ export class SalesAgentService {
 
     try {
       const sales = await this.solarisApiService.getSales(authorization);
-      const filtered = this.filterSalesByDate(sales, date)
+      let filtered = this.filterSalesByDate(sales, date);
+
+      if (!date) {
+        filtered = this.filterSalesByCurrentMonth(filtered);
+      }
+
+      const totalCount = filtered.length;
+      const items = filtered
         .sort(
           (left, right) =>
             new Date(right.createdAt).getTime() -
@@ -40,30 +64,125 @@ export class SalesAgentService {
         )
         .slice(0, MAX_LIST_SALES);
 
-      if (filtered.length === 0) {
+      if (totalCount === 0) {
         return {
           type: 'message',
           intent,
           message: this.novaI18n.t(language, 'sales.list.empty', {
             dateSuffix: this.formatDateSuffix(date, language),
+            scopeSuffix: this.formatScopeSuffix(date, language),
           }),
         };
       }
 
+      let responseMessage = this.novaI18n.t(language, 'sales.list.found', {
+        count: items.length,
+        totalCount,
+        dateSuffix: this.formatDateSuffix(date, language),
+        scopeSuffix: this.formatScopeSuffix(date, language),
+      });
+
+      if (totalCount > MAX_LIST_SALES) {
+        responseMessage += `\n\n${this.novaI18n.t(language, 'sales.list.truncated', {
+          shown: items.length,
+          total: totalCount,
+        })}`;
+      }
+
+      if (totalCount > SALES_VOLUME_WARNING_THRESHOLD) {
+        responseMessage += `\n\n${this.novaI18n.t(
+          language,
+          'sales.list.volumeWarning',
+          {
+            total: totalCount,
+            threshold: SALES_VOLUME_WARNING_THRESHOLD,
+          },
+        )}`;
+      }
+
+      const result: SalesListResult = {
+        items,
+        totalCount,
+        volumeThreshold: SALES_VOLUME_WARNING_THRESHOLD,
+      };
+
       return {
         type: 'tool_result',
         intent,
-        message: this.novaI18n.t(language, 'sales.list.found', {
-          count: filtered.length,
-          dateSuffix: this.formatDateSuffix(date, language),
-        }),
-        data: filtered,
+        message: responseMessage,
+        data: result,
       };
     } catch (error: unknown) {
       return {
         type: 'error',
         intent,
         message: this.novaI18n.t(language, 'sales.list.error'),
+        data: {
+          errorMessage: error instanceof Error ? error.message : String(error),
+        },
+      };
+    }
+  }
+
+  async handleExportReport(
+    message: string,
+    authorization: string | undefined,
+    intent: 'export_report',
+    language = 'es',
+  ): Promise<ChatResponseDto> {
+    const module = ReportActionExtractor.extractModule(message);
+
+    if (!module) {
+      return {
+        type: 'message',
+        intent,
+        message: this.novaI18n.t(language, 'reports.missingModule'),
+      };
+    }
+
+    if (module !== 'sales') {
+      return {
+        type: 'message',
+        intent,
+        message: this.novaI18n.t(language, 'reports.moduleNotSupported', {
+          module,
+        }),
+      };
+    }
+
+    const { from, to } = ReportActionExtractor.extractDateRange(message);
+
+    try {
+      const sales = await this.solarisApiService.getSales(authorization);
+      const filtered = this.filterSalesByDateRange(sales, from, to).sort(
+        (left, right) =>
+          new Date(right.createdAt).getTime() -
+          new Date(left.createdAt).getTime(),
+      );
+
+      const result: SalesExportReportResult = {
+        module: 'sales',
+        from,
+        to,
+        sales: filtered,
+        totalCount: filtered.length,
+      };
+
+      return {
+        type: 'tool_result',
+        intent,
+        message: this.novaI18n.t(language, 'reports.sales.ready', {
+          count: filtered.length,
+          from,
+          to,
+        }),
+        data: result,
+      };
+    } catch (error: unknown) {
+      return {
+        type: 'error',
+        intent,
+        message: this.novaI18n.t(language, 'reports.sales.error'),
         data: {
           errorMessage: error instanceof Error ? error.message : String(error),
         },
@@ -320,6 +439,40 @@ export class SalesAgentService {
     }
 
     return sales.filter((sale) => sale.createdAt.startsWith(date));
+  }
+
+  private filterSalesByDateRange(
+    sales: SaleResponseDto[],
+    from: string,
+    to: string,
+  ): SaleResponseDto[] {
+    return sales.filter((sale) => {
+      const saleDate = sale.createdAt.split('T')[0];
+
+      return saleDate >= from && saleDate <= to;
+    });
+  }
+
+  private filterSalesByCurrentMonth(
+    sales: SaleResponseDto[],
+  ): SaleResponseDto[] {
+    const now = new Date();
+    const monthStart = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-01`;
+    const monthEnd = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(
+      new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate(),
+    ).padStart(2, '0')}`;
+
+    return this.filterSalesByDateRange(sales, monthStart, monthEnd);
+  }
+
+  private formatScopeSuffix(date: string | undefined, language: string): string {
+    if (date) {
+      return '';
+    }
+
+    return language.startsWith('es')
+      ? ' del mes en curso'
+      : ' for the current month';
   }
 
   private formatDateSuffix(date: string | undefined, language: string): string {

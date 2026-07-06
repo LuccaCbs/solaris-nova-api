@@ -24,6 +24,7 @@ export type NovaIntent =
   | 'list_sales'
   | 'show_sale'
   | 'get_daily_sales_summary'
+  | 'export_report'
   | 'search_customer'
   | 'show_customer'
   | 'list_fiscal_documents'
@@ -51,6 +52,8 @@ export class IntentClassifierService {
 
     if (this.matchesEmitInvoice(text)) return 'emit_invoice';
     if (this.matchesCreateSale(text)) return 'create_sale';
+
+    if (this.matchesExportReport(text)) return 'export_report';
 
     if (this.matchesDailySalesSummary(text)) return 'get_daily_sales_summary';
     if (this.matchesShowSale(text)) return 'show_sale';
@@ -333,6 +336,31 @@ export class IntentClassifierService {
     ].some((pattern) => pattern.test(text));
   }
 
+  private matchesExportReport(text: string): boolean {
+    const hasReportAction = [
+      /\b(ver\s+)?informe\b/i,
+      /\binforme\s+de\b/i,
+      /\b(ver\s+)?reporte\b/i,
+      /\bexportar\s+(informe|excel|reporte)\b/i,
+      /\bgenerar\s+(informe|excel|reporte)\b/i,
+      /\b(export|generate)\s+(report|spreadsheet|excel)\b/i,
+    ].some((pattern) => pattern.test(text));
+
+    if (!hasReportAction) {
+      return false;
+    }
+
+    return this.includesAny(text, [
+      'ventas',
+      'sales',
+      'vendes',
+      'mercaderia',
+      'merchandise',
+      'restock',
+      'ingreso',
+    ]);
+  }
+
   private matchesDailySalesSummary(text: string): boolean {
     if (
       this.includesAny(text, [
@@ -370,6 +398,10 @@ export class IntentClassifierService {
 
   private matchesListSales(text: string): boolean {
     if (this.matchesDailySalesSummary(text)) {
+      return false;
+    }
+
+    if (this.matchesExportReport(text)) {
       return false;
     }
 
