@@ -146,10 +146,18 @@ export type CustomerCondicionIvaDto =
   | 'CONSUMIDOR_FINAL'
   | 'NO_CATEGORIZADO';
 
+export interface CustomerDocumentDto {
+  id?: number;
+  documentType: CustomerDocumentTypeDto;
+  documentNumber: string;
+  primary?: boolean;
+}
+
 export interface CustomerResponseDto {
   id: number;
   documentType: CustomerDocumentTypeDto;
   documentNumber: string;
+  documents: CustomerDocumentDto[];
   razonSocial: string;
   email: string | null;
   phone: string | null;
@@ -160,8 +168,7 @@ export interface CustomerResponseDto {
 }
 
 export interface CreateCustomerDto {
-  documentType: CustomerDocumentTypeDto;
-  documentNumber: string;
+  documents: CustomerDocumentDto[];
   razonSocial: string;
   email?: string;
   phone?: string;

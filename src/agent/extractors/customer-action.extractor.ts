@@ -1,10 +1,12 @@
 import type {
   CustomerCondicionIvaDto,
+  CustomerDocumentDto,
   CustomerDocumentTypeDto,
 } from '../../solaris-client/solaris-api/solaris-api.service';
 
 export interface CreateCustomerDraft {
   razonSocial?: string;
+  documents?: CustomerDocumentDto[];
   documentType?: CustomerDocumentTypeDto;
   documentNumber?: string;
   email?: string;
@@ -18,6 +20,7 @@ export interface UpdateCustomerDraft {
   customerId?: number;
   customerName?: string;
   razonSocial?: string;
+  documents?: CustomerDocumentDto[];
   documentType?: CustomerDocumentTypeDto;
   documentNumber?: string;
   email?: string;
@@ -65,11 +68,13 @@ export class CustomerActionExtractor {
 
   static extractCreateCustomerDraft(message: string): CreateCustomerDraft {
     const normalized = message.trim();
+    const documents = this.extractDocuments(normalized);
 
     return {
       razonSocial: this.extractRazonSocial(normalized),
-      documentType: this.extractDocumentType(normalized),
-      documentNumber: this.extractDocumentNumber(normalized),
+      documents: documents.length > 0 ? documents : undefined,
+      documentType: documents[0]?.documentType ?? this.extractDocumentType(normalized),
+      documentNumber: documents[0]?.documentNumber ?? this.extractDocumentNumber(normalized),
       email: this.extractEmail(normalized),
       phone: this.extractPhone(normalized),
       address: this.extractAddress(normalized),
@@ -79,12 +84,14 @@ export class CustomerActionExtractor {
 
   static extractUpdateCustomerDraft(message: string): UpdateCustomerDraft {
     const normalized = message.trim();
+    const documents = this.extractDocuments(normalized);
 
     return {
       customerQuery: this.extractUpdateCustomerQuery(normalized),
       razonSocial: this.extractRazonSocialField(normalized),
-      documentType: this.extractDocumentType(normalized),
-      documentNumber: this.extractDocumentNumber(normalized),
+      documents: documents.length > 0 ? documents : undefined,
+      documentType: documents[0]?.documentType ?? this.extractDocumentType(normalized),
+      documentNumber: documents[0]?.documentNumber ?? this.extractDocumentNumber(normalized),
       email: this.extractEmail(normalized),
       phone: this.extractPhone(normalized),
       address: this.extractAddress(normalized),
@@ -121,6 +128,54 @@ export class CustomerActionExtractor {
         ),
       )?.[1],
     );
+  }
+
+  private static extractDocuments(message: string): CustomerDocumentDto[] {
+    const documents: CustomerDocumentDto[] = [];
+    const seen = new Set<string>();
+
+    const patterns: Array<{
+      type: CustomerDocumentTypeDto;
+      regex: RegExp;
+    }> = [
+      {
+        type: 'CUIT',
+        regex: /\b(?:cuit)\s*(?:is|es|:)?\s*([0-9\-]{11,13})\b/gi,
+      },
+      {
+        type: 'CUIL',
+        regex: /\b(?:cuil)\s*(?:is|es|:)?\s*([0-9\-]{11,13})\b/gi,
+      },
+      {
+        type: 'DNI',
+        regex: /\b(?:dni)\s*(?:is|es|:)?\s*([0-9\-\.]{7,10})\b/gi,
+      },
+    ];
+
+    for (const pattern of patterns) {
+      for (const match of message.matchAll(pattern.regex)) {
+        const documentNumber = this.cleanValue(match[1]);
+
+        if (!documentNumber) {
+          continue;
+        }
+
+        const key = `${pattern.type}:${documentNumber}`;
+
+        if (seen.has(key)) {
+          continue;
+        }
+
+        seen.add(key);
+        documents.push({
+          documentType: pattern.type,
+          documentNumber,
+          primary: documents.length === 0,
+        });
+      }
+    }
+
+    return documents;
   }
 
   private static extractDocumentType(

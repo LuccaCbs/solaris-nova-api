@@ -1,6 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import { ChatResponseDto } from '../../chat/dto/chat-response.dto';
-import { SolarisApiService } from '../../solaris-client/solaris-api/solaris-api.service';
+import {
+  CustomerDocumentDto,
+  CustomerResponseDto,
+  SolarisApiService,
+} from '../../solaris-client/solaris-api/solaris-api.service';
 import { NovaI18nService } from '../../i18n/nova-i18n/nova-i18n.service';
 import { ConfirmationStateService } from '../confirmation-state/confirmation-state.service';
 import {
@@ -36,6 +40,7 @@ export class CustomerAgentService {
           : typeof geminiFields?.name === 'string'
             ? geminiFields.name
             : draftFromRegex.razonSocial,
+      documents: draftFromRegex.documents,
       documentType:
         typeof geminiFields?.documentType === 'string'
           ? (geminiFields.documentType as CreateCustomerDraft['documentType'])
@@ -71,7 +76,9 @@ export class CustomerAgentService {
       };
     }
 
-    if (!draft.documentNumber) {
+    const documents = this.resolveDocumentsForCreate(draft);
+
+    if (documents.length === 0) {
       return {
         type: 'message',
         intent,
@@ -83,12 +90,15 @@ export class CustomerAgentService {
       };
     }
 
-    const documentType = draft.documentType ?? 'DNI';
+    const primaryDocument =
+      documents.find((document) => document.primary) ?? documents[0];
     const condicionIva = draft.condicionIva ?? 'CONSUMIDOR_FINAL';
 
     const normalizedDraft: CreateCustomerDraft = {
       ...draft,
-      documentType,
+      documents,
+      documentType: primaryDocument.documentType,
+      documentNumber: primaryDocument.documentNumber,
       condicionIva,
     };
 
@@ -104,8 +114,8 @@ export class CustomerAgentService {
       intent,
       message: this.novaI18n.t(language, 'customers.create.confirm', {
         razonSocial: normalizedDraft.razonSocial!,
-        documentType,
-        documentNumber: normalizedDraft.documentNumber!,
+        documentType: primaryDocument.documentType,
+        documentNumber: primaryDocument.documentNumber,
         email: normalizedDraft.email ?? '-',
         phone: normalizedDraft.phone ?? '-',
         condicionIva,
@@ -120,10 +130,11 @@ export class CustomerAgentService {
     language = 'es',
   ): Promise<ChatResponseDto> {
     try {
+      const documents = this.resolveDocumentsForCreate(draft);
+
       const result = await this.solarisApiService.createCustomer(
         {
-          documentType: draft.documentType ?? 'DNI',
-          documentNumber: draft.documentNumber!,
+          documents,
           razonSocial: draft.razonSocial!,
           email: draft.email,
           phone: draft.phone,
@@ -261,6 +272,7 @@ export class CustomerAgentService {
 
     const hasUpdates =
       draft.razonSocial !== undefined ||
+      draft.documents !== undefined ||
       draft.documentType !== undefined ||
       draft.documentNumber !== undefined ||
       draft.email !== undefined ||
@@ -327,14 +339,19 @@ export class CustomerAgentService {
         createdAt: new Date(),
       });
 
+      const previewDocuments = this.resolveDocumentsForUpdate(draft, customer);
+      const primaryDocument =
+        previewDocuments.find((document) => document.primary) ??
+        previewDocuments[0];
+
       return {
         type: 'confirmation',
         intent,
         message: this.novaI18n.t(language, 'customers.update.confirm', {
           name: customer.razonSocial,
           razonSocial: draft.razonSocial ?? customer.razonSocial,
-          documentType: draft.documentType ?? customer.documentType,
-          documentNumber: draft.documentNumber ?? customer.documentNumber,
+          documentType: primaryDocument.documentType,
+          documentNumber: primaryDocument.documentNumber,
           email: draft.email ?? customer.email ?? '-',
           phone: draft.phone ?? customer.phone ?? '-',
           address: draft.address ?? customer.address ?? '-',
@@ -374,8 +391,7 @@ export class CustomerAgentService {
       const result = await this.solarisApiService.updateCustomer(
         draft.customerId,
         {
-          documentType: draft.documentType ?? customer.documentType,
-          documentNumber: draft.documentNumber ?? customer.documentNumber,
+          documents: this.resolveDocumentsForUpdate(draft, customer),
           razonSocial: draft.razonSocial ?? customer.razonSocial,
           email: draft.email ?? customer.email ?? undefined,
           phone: draft.phone ?? customer.phone ?? undefined,
@@ -552,6 +568,86 @@ export class CustomerAgentService {
       .replace(/[\u0300-\u036f]/g, '')
       .toLowerCase()
       .trim();
+  }
+
+  private resolveDocumentsForCreate(
+    draft: CreateCustomerDraft,
+  ): CustomerDocumentDto[] {
+    if (draft.documents?.length) {
+      return draft.documents.map((document, index) => ({
+        documentType: document.documentType,
+        documentNumber: document.documentNumber,
+        primary: document.primary ?? index === 0,
+      }));
+    }
+
+    if (draft.documentNumber) {
+      return [
+        {
+          documentType: draft.documentType ?? 'DNI',
+          documentNumber: draft.documentNumber,
+          primary: true,
+        },
+      ];
+    }
+
+    return [];
+  }
+
+  private resolveDocumentsForUpdate(
+    draft: UpdateCustomerDraft,
+    customer: CustomerResponseDto,
+  ): CustomerDocumentDto[] {
+    if (draft.documents?.length) {
+      return draft.documents.map((document, index) => ({
+        documentType: document.documentType,
+        documentNumber: document.documentNumber,
+        primary: document.primary ?? index === 0,
+      }));
+    }
+
+    const baseDocuments: CustomerDocumentDto[] =
+      customer.documents?.length > 0
+        ? customer.documents.map((document) => ({
+            documentType: document.documentType,
+            documentNumber: document.documentNumber,
+            primary: document.primary,
+          }))
+        : [
+            {
+              documentType: customer.documentType,
+              documentNumber: customer.documentNumber,
+              primary: true,
+            },
+          ];
+
+    if (
+      draft.documentType === undefined &&
+      draft.documentNumber === undefined
+    ) {
+      return baseDocuments;
+    }
+
+    let primaryUpdated = false;
+
+    return baseDocuments.map((document, index) => {
+      const isPrimary =
+        document.primary === true ||
+        (!primaryUpdated && !baseDocuments.some((item) => item.primary));
+
+      if (!isPrimary) {
+        return document;
+      }
+
+      primaryUpdated = true;
+
+      return {
+        ...document,
+        documentType: draft.documentType ?? document.documentType,
+        documentNumber: draft.documentNumber ?? document.documentNumber,
+        primary: true,
+      };
+    });
   }
 
   private getErrorMessage(error: unknown): string {
