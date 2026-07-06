@@ -49,7 +49,7 @@ export const fr: typeof en = {
       multipleProducts:
         'Plusieurs produits correspondent à "{{query}}". Soyez plus précis.',
       confirm:
-        'Vous souhaitez modifier ce produit :\n\nProduit actuel : {{name}}\nNouveau nom : {{newName}}\nSKU : {{sku}}\nPrix : ${{price}}\nDescription : {{description}}\nCatégorie : {{category}}\n\nConfirmez-vous ?',
+        'Vous souhaitez modifier ce produit :\n\nProduit actuel : {{name}}\nNouveau nom : {{newName}}\nCode-barres : {{barcode}}\nPrix : ${{price}}\nDescription : {{description}}\nCatégorie : {{category}}\n\nConfirmez-vous ?',
       updated: 'Produit mis à jour avec succès.',
       error: 'Impossible de mettre à jour le produit.',
     },
@@ -59,7 +59,7 @@ export const fr: typeof en = {
       multipleProducts:
         'Plusieurs produits correspondent à "{{query}}". Soyez plus précis.',
       confirm:
-        "Vous souhaitez désactiver ce produit :\n\nNom : {{name}}\nSKU : {{sku}}\nStock actuel : {{stock}}\nCatégorie : {{category}}\n\nL'historique du produit sera conservé.\n\nConfirmez-vous ?",
+        "Vous souhaitez désactiver ce produit :\n\nNom : {{name}}\nCode-barres : {{barcode}}\nStock actuel : {{stock}}\nCatégorie : {{category}}\n\nL'historique du produit sera conservé.\n\nConfirmez-vous ?",
       deactivated: 'Produit "{{name}}" désactivé avec succès.',
       error: 'Impossible de désactiver le produit.',
     },
@@ -69,7 +69,7 @@ export const fr: typeof en = {
       multipleProducts:
         'Plusieurs produits inactifs correspondent à "{{query}}". Soyez plus précis.',
       confirm:
-        'Vous souhaitez réactiver ce produit :\n\nNom : {{name}}\nSKU : {{sku}}\nStock actuel : {{stock}}\nCatégorie : {{category}}\n\nConfirmez-vous ?',
+        'Vous souhaitez réactiver ce produit :\n\nNom : {{name}}\nCode-barres : {{barcode}}\nStock actuel : {{stock}}\nCatégorie : {{category}}\n\nConfirmez-vous ?',
       activated: 'Produit "{{name}}" réactivé avec succès.',
       error: 'Impossible de réactiver le produit.',
     },

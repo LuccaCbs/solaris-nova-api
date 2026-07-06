@@ -608,8 +608,9 @@ export class SolarisApiService {
     const solarisApiUrl = this.configService.get<string>('SOLARIS_API_URL');
 
     await firstValueFrom(
-      this.httpService.delete(
-        `${solarisApiUrl}/api/v1/suppliers/${supplierId}`,
+      this.httpService.patch(
+        `${solarisApiUrl}/api/v1/suppliers/${supplierId}/deactivate`,
+        {},
         {
           headers: authorization
             ? {
@@ -946,33 +947,36 @@ export class SolarisApiService {
     return response.data;
   }
 
+  async searchCustomers(
+    query: string,
+    authorization?: string,
+  ): Promise<CustomerResponseDto[]> {
+    const solarisApiUrl = this.configService.get<string>('SOLARIS_API_URL');
+
+    const response = await firstValueFrom(
+      this.httpService.get<CustomerResponseDto[]>(
+        `${solarisApiUrl}/api/v1/customers/search`,
+        {
+          params: { q: query },
+          headers: authorization ? { Authorization: authorization } : undefined,
+        },
+      ),
+    );
+
+    return response.data;
+  }
+
   async smartSearchCustomers(
     query: string,
     authorization?: string,
   ): Promise<CustomerResponseDto[]> {
-    const customers = await this.getCustomers(authorization);
-    const normalizedQuery = this.normalizeSearchText(query);
+    const trimmedQuery = query.trim();
 
-    if (!normalizedQuery) {
-      return customers;
+    if (!trimmedQuery) {
+      return this.getCustomers(authorization);
     }
 
-    return customers.filter((customer) => {
-      const searchableText = this.normalizeSearchText(
-        [
-          customer.razonSocial,
-          customer.documentNumber,
-          customer.email,
-          customer.phone,
-          customer.address,
-          customer.documentType,
-        ]
-          .filter(Boolean)
-          .join(' '),
-      );
-
-      return searchableText.includes(normalizedQuery);
-    });
+    return this.searchCustomers(trimmedQuery, authorization);
   }
 
   /*CUSTOMERS-END*/

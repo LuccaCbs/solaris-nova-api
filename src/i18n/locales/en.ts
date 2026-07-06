@@ -44,7 +44,7 @@ export const en = {
       multipleProducts:
         'I found several products for "{{query}}". I need you to be more specific.',
       confirm:
-        'I understood that you want to update the following product:\n\nCurrent product: {{name}}\nNew name: {{newName}}\nSKU: {{sku}}\nPrice: ${{price}}\nDescription: {{description}}\nCategory: {{category}}\n\nDo you confirm the operation?',
+        'I understood that you want to update the following product:\n\nCurrent product: {{name}}\nNew name: {{newName}}\nBarcode: {{barcode}}\nPrice: ${{price}}\nDescription: {{description}}\nCategory: {{category}}\n\nDo you confirm the operation?',
       updated: 'Product updated successfully in Solaris.',
       error: 'I could not update the product in Solaris.',
     },
@@ -54,7 +54,7 @@ export const en = {
       multipleProducts:
         'I found several products for "{{query}}". I need you to be more specific.',
       confirm:
-        'I understood that you want to deactivate the following product:\n\nName: {{name}}\nSKU: {{sku}}\nCurrent stock: {{stock}}\nCategory: {{category}}\n\nThis will not delete the product history.\n\nDo you confirm deactivation?',
+        'I understood that you want to deactivate the following product:\n\nName: {{name}}\nBarcode: {{barcode}}\nCurrent stock: {{stock}}\nCategory: {{category}}\n\nThis will not delete the product history.\n\nDo you confirm deactivation?',
       deactivated: 'Product "{{name}}" deactivated successfully in Solaris.',
       error: 'I could not deactivate the product in Solaris.',
     },
@@ -64,7 +64,7 @@ export const en = {
       multipleProducts:
         'I found several inactive products for "{{query}}". I need you to be more specific.',
       confirm:
-        'I understood that you want to reactivate the following product:\n\nName: {{name}}\nSKU: {{sku}}\nCurrent stock: {{stock}}\nCategory: {{category}}\n\nDo you confirm reactivation?',
+        'I understood that you want to reactivate the following product:\n\nName: {{name}}\nBarcode: {{barcode}}\nCurrent stock: {{stock}}\nCategory: {{category}}\n\nDo you confirm reactivation?',
       activated: 'Product "{{name}}" reactivated successfully in Solaris.',
       error: 'I could not reactivate the product in Solaris.',
     },
@@ -283,8 +283,13 @@ export const en = {
   },
   fiscalDocuments: {
     list: {
-      found: 'I found {{count}} fiscal document(s).',
-      empty: 'There are no fiscal documents yet.',
+      found:
+        'I found {{count}} fiscal document(s){{scopeSuffix}} ({{totalCount}} total).',
+      empty: 'There are no fiscal documents{{scopeSuffix}}.',
+      truncated:
+        'Showing the {{shown}} most recent documents out of {{total}}.',
+      volumeWarning:
+        'There are {{total}} documents in this period (more than {{threshold}}). For large volumes I recommend going to Fiscal documents and filtering by date.',
       error: 'I could not fetch fiscal documents.',
     },
     show: {

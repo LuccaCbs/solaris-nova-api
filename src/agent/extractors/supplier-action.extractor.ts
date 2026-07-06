@@ -27,6 +27,9 @@ export interface DeleteSupplierDraft {
 }
 
 export class SupplierActionExtractor {
+  private static readonly UPDATE_FIELD_BOUNDARY =
+    '(?=\\s+(?:with|and|nombre|name|contact name|contact|contacto|phone number|phone|telefono|teléfono|tel|email|mail|address|direccion|dirección|notes|notas|active|inactive|activo|inactivo)\\b|$)';
+
   static extractCreateSupplierDraft(message: string): CreateSupplierDraft {
     const normalized = message.trim();
 
@@ -52,6 +55,7 @@ export class SupplierActionExtractor {
 
     const email = this.extractEmail(normalized);
     const phone = this.extractPhone(normalized);
+    const name = this.extractName(normalized);
     const contactName = this.extractContactName(normalized);
     const address = this.extractAddress(normalized);
     const notes = this.extractNotes(normalized);
@@ -60,6 +64,7 @@ export class SupplierActionExtractor {
 
     return {
       supplierQuery,
+      name,
       contactName,
       email,
       phone,
@@ -101,10 +106,24 @@ export class SupplierActionExtractor {
     );
   }
 
+  private static extractName(message: string): string | undefined {
+    return this.cleanValue(
+      message.match(
+        new RegExp(
+          `(?:nombre|name)\\s*(?:is|es|:)?\\s+(.+?)${this.UPDATE_FIELD_BOUNDARY}`,
+          'i',
+        ),
+      )?.[1],
+    );
+  }
+
   private static extractContactName(message: string): string | undefined {
     return this.cleanValue(
       message.match(
-        /(?:with\s+)?(?:contact name|contact|contacto)\s*(?:is|es|:)?\s+(.+?)(?=\s+(?:and|with|phone|phone number|telefono|teléfono|tel|email|mail|address|direccion|dirección|notes|notas|active|inactive|activo|inactivo)\b|$)/i,
+        new RegExp(
+          `(?:with\\s+)?(?:contact name|contact|contacto)\\s*(?:is|es|:)?\\s+(.+?)${this.UPDATE_FIELD_BOUNDARY}`,
+          'i',
+        ),
       )?.[1],
     );
   }
@@ -112,7 +131,10 @@ export class SupplierActionExtractor {
   private static extractAddress(message: string): string | undefined {
     return this.cleanValue(
       message.match(
-        /(?:address|direccion|dirección)\s*(?:is|es|:)?\s+(.+?)(?=\s+(?:and|with|phone|phone number|telefono|teléfono|tel|email|mail|notes|notas|active|inactive|activo|inactivo)\b|$)/i,
+        new RegExp(
+          `(?:address|direccion|dirección)\\s*(?:is|es|:)?\\s+(.+?)${this.UPDATE_FIELD_BOUNDARY}`,
+          'i',
+        ),
       )?.[1],
     );
   }
@@ -136,7 +158,7 @@ export class SupplierActionExtractor {
       .trim();
 
     const nameMatch = withoutCommand.match(
-      /^(?:name\s*(?:is|:)?\s*)?["']?(.+?)["']?(?=\s+(?:with|and|contact name|contact|contacto|phone number|phone|telefono|teléfono|tel|email|mail|address|direccion|dirección|notes|notas)\b|$)/i,
+      /^(?:name\s*(?:is|:)?\s*)?["']?(.+?)["']?(?=\s+(?:with|and|nombre|name|contact name|contact|contacto|phone number|phone|telefono|teléfono|tel|email|mail|address|direccion|dirección|notes|notas)\b|$)/i,
     );
 
     return (
@@ -159,7 +181,7 @@ export class SupplierActionExtractor {
       .trim();
 
     const match = withoutCommand.match(
-      /^(.+?)(?=\s+(?:with|and|contact name|contact|contacto|phone number|phone|telefono|teléfono|tel|email|mail|address|direccion|dirección|notes|notas|active|inactive|activo|inactivo)\b|$)/i,
+      new RegExp(`^(.+?)${this.UPDATE_FIELD_BOUNDARY}`, 'i'),
     );
 
     return this.cleanValue(match?.[1]);

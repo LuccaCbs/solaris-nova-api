@@ -262,7 +262,7 @@ export class SupplierAgentService {
         type: 'confirmation',
         intent,
         message: this.novaI18n.t(language, 'suppliers.update.confirm', {
-          name: supplier.name,
+          name: draft.name ?? supplier.name,
           contactName: draft.contactName ?? supplier.contactName ?? '-',
           email: draft.email ?? supplier.email ?? '-',
           phone: draft.phone ?? supplier.phone ?? '-',

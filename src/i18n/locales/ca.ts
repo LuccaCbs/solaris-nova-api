@@ -46,7 +46,7 @@ export const ca: typeof en = {
       missingFields: 'Cal indicar què vols modificar.',
       multipleProducts: 'He trobat diversos productes per "{{query}}".',
       confirm:
-        'He entès que vols modificar aquest producte:\n\nProducte actual: {{name}}\nNou nom: {{newName}}\nSKU: {{sku}}\nPreu: ${{price}}\nDescripció: {{description}}\nCategoria: {{category}}\n\nHo confirmes?',
+        'He entès que vols modificar aquest producte:\n\nProducte actual: {{name}}\nNou nom: {{newName}}\nCodi de barres: {{barcode}}\nPreu: ${{price}}\nDescripció: {{description}}\nCategoria: {{category}}\n\nHo confirmes?',
       updated: 'Producte actualitzat correctament.',
       error: 'No he pogut actualitzar el producte.',
     },
@@ -55,7 +55,7 @@ export const ca: typeof en = {
       missingProduct: 'Cal indicar quin producte vols desactivar.',
       multipleProducts: 'He trobat diversos productes per "{{query}}".',
       confirm:
-        'He entès que vols desactivar aquest producte:\n\nNom: {{name}}\nSKU: {{sku}}\nEstoc actual: {{stock}}\nCategoria: {{category}}\n\nL’historial es conservarà.\n\nHo confirmes?',
+        'He entès que vols desactivar aquest producte:\n\nNom: {{name}}\nCodi de barres: {{barcode}}\nEstoc actual: {{stock}}\nCategoria: {{category}}\n\nL’historial es conservarà.\n\nHo confirmes?',
       deactivated: 'Producte "{{name}}" desactivat correctament.',
       error: 'No he pogut desactivar el producte.',
     },
@@ -65,7 +65,7 @@ export const ca: typeof en = {
       multipleProducts:
         'He trobat diversos productes inactius per "{{query}}".',
       confirm:
-        'He entès que vols reactivar aquest producte:\n\nNom: {{name}}\nSKU: {{sku}}\nEstoc actual: {{stock}}\nCategoria: {{category}}\n\nHo confirmes?',
+        'He entès que vols reactivar aquest producte:\n\nNom: {{name}}\nCodi de barres: {{barcode}}\nEstoc actual: {{stock}}\nCategoria: {{category}}\n\nHo confirmes?',
       activated: 'Producte "{{name}}" reactivat correctament.',
       error: 'No he pogut reactivar el producte.',
     },

@@ -1,14 +1,25 @@
 import { Injectable } from '@nestjs/common';
 import { ChatResponseDto } from '../../chat/dto/chat-response.dto';
-import { SolarisApiService } from '../../solaris-client/solaris-api/solaris-api.service';
+import {
+  FiscalDocumentResponseDto,
+  SolarisApiService,
+} from '../../solaris-client/solaris-api/solaris-api.service';
 import { NovaI18nService } from '../../i18n/nova-i18n/nova-i18n.service';
 import { ConfirmationStateService } from '../confirmation-state/confirmation-state.service';
 import {
   EmitInvoiceDraft,
   FiscalActionExtractor,
 } from '../extractors/fiscal-action.extractor';
+import {
+  FISCAL_VOLUME_WARNING_THRESHOLD,
+  MAX_LIST_FISCAL_DOCUMENTS,
+} from './fiscal-list.constants';
 
-const MAX_LIST_DOCUMENTS = 15;
+export interface FiscalDocumentsListResult {
+  items: FiscalDocumentResponseDto[];
+  totalCount: number;
+  volumeThreshold: number;
+}
 
 @Injectable()
 export class FiscalAgentService {
@@ -27,23 +38,69 @@ export class FiscalAgentService {
       const documents = await this.solarisApiService.getFiscalDocuments(
         authorization,
       );
-      const results = documents.slice(0, MAX_LIST_DOCUMENTS);
+      const filtered = this.filterDocumentsByCurrentMonth(documents);
+      const totalCount = filtered.length;
+      const items = filtered
+        .sort(
+          (left, right) =>
+            new Date(right.createdAt).getTime() -
+            new Date(left.createdAt).getTime(),
+        )
+        .slice(0, MAX_LIST_FISCAL_DOCUMENTS);
 
-      if (results.length === 0) {
+      if (totalCount === 0) {
         return {
           type: 'message',
           intent,
-          message: this.novaI18n.t(language, 'fiscalDocuments.list.empty'),
+          message: this.novaI18n.t(language, 'fiscalDocuments.list.empty', {
+            scopeSuffix: this.formatScopeSuffix(language),
+          }),
         };
       }
+
+      let responseMessage = this.novaI18n.t(
+        language,
+        'fiscalDocuments.list.found',
+        {
+          count: items.length,
+          totalCount,
+          scopeSuffix: this.formatScopeSuffix(language),
+        },
+      );
+
+      if (totalCount > MAX_LIST_FISCAL_DOCUMENTS) {
+        responseMessage += `\n\n${this.novaI18n.t(
+          language,
+          'fiscalDocuments.list.truncated',
+          {
+            shown: items.length,
+            total: totalCount,
+          },
+        )}`;
+      }
+
+      if (totalCount > FISCAL_VOLUME_WARNING_THRESHOLD) {
+        responseMessage += `\n\n${this.novaI18n.t(
+          language,
+          'fiscalDocuments.list.volumeWarning',
+          {
+            total: totalCount,
+            threshold: FISCAL_VOLUME_WARNING_THRESHOLD,
+          },
+        )}`;
+      }
+
+      const result: FiscalDocumentsListResult = {
+        items,
+        totalCount,
+        volumeThreshold: FISCAL_VOLUME_WARNING_THRESHOLD,
+      };
 
       return {
         type: 'tool_result',
         intent,
-        message: this.novaI18n.t(language, 'fiscalDocuments.list.found', {
-          count: results.length,
-        }),
-        data: results,
+        message: responseMessage,
+        data: result,
       };
     } catch (error: unknown) {
       return {
@@ -259,5 +316,27 @@ export class FiscalAgentService {
         },
       };
     }
+  }
+
+  private filterDocumentsByCurrentMonth(
+    documents: FiscalDocumentResponseDto[],
+  ): FiscalDocumentResponseDto[] {
+    const now = new Date();
+    const monthStart = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-01`;
+    const monthEnd = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(
+      new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate(),
+    ).padStart(2, '0')}`;
+
+    return documents.filter((document) => {
+      const documentDate = document.createdAt.split('T')[0];
+
+      return documentDate >= monthStart && documentDate <= monthEnd;
+    });
+  }
+
+  private formatScopeSuffix(language: string): string {
+    return language.startsWith('es')
+      ? ' del mes en curso'
+      : ' for the current month';
   }
 }
