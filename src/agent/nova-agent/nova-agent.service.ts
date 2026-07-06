@@ -31,6 +31,11 @@ import {
 } from '../extractors/supplier-order-action.extractor';
 import { CreateSaleDraft } from '../extractors/sales-action.extractor';
 import { EmitInvoiceDraft } from '../extractors/fiscal-action.extractor';
+import {
+  CreateCustomerDraft,
+  DeactivateCustomerDraft,
+  UpdateCustomerDraft,
+} from '../extractors/customer-action.extractor';
 @Injectable()
 export class NovaAgentService {
   constructor(
@@ -198,6 +203,30 @@ export class NovaAgentService {
       if (pendingAction.intent === 'emit_invoice') {
         return this.fiscalAgentService.confirmEmitInvoice(
           pendingAction.data as EmitInvoiceDraft,
+          authorization,
+          language,
+        );
+      }
+
+      if (pendingAction.intent === 'create_customer') {
+        return this.customerAgentService.confirmCreateCustomer(
+          pendingAction.data as CreateCustomerDraft,
+          authorization,
+          language,
+        );
+      }
+
+      if (pendingAction.intent === 'update_customer') {
+        return this.customerAgentService.confirmUpdateCustomer(
+          pendingAction.data as UpdateCustomerDraft,
+          authorization,
+          language,
+        );
+      }
+
+      if (pendingAction.intent === 'deactivate_customer') {
+        return this.customerAgentService.confirmDeactivateCustomer(
+          pendingAction.data as DeactivateCustomerDraft,
           authorization,
           language,
         );
@@ -422,6 +451,30 @@ export class NovaAgentService {
 
       case 'search_customer':
         return this.customerAgentService.handleSearchCustomer(
+          message,
+          authorization,
+          intent,
+          language,
+        );
+
+      case 'create_customer':
+        return this.customerAgentService.handleCreateCustomer(
+          message,
+          intent,
+          geminiFields,
+          language,
+        );
+
+      case 'update_customer':
+        return this.customerAgentService.handleUpdateCustomer(
+          message,
+          authorization,
+          intent,
+          language,
+        );
+
+      case 'deactivate_customer':
+        return this.customerAgentService.handleDeactivateCustomer(
           message,
           authorization,
           intent,

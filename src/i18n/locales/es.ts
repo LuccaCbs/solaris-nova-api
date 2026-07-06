@@ -283,6 +283,37 @@ export const es = {
       found: 'Encontré el cliente #{{id}}.',
       error: 'No pude obtener el detalle del cliente.',
     },
+    create: {
+      missingName: 'Para crear un cliente necesito que indiques la razón social.',
+      missingDocumentNumber:
+        'Para crear un cliente necesito el número de documento (CUIT, CUIL o DNI).',
+      confirm:
+        'Entendí que querés crear el siguiente cliente:\n\nRazón social: {{razonSocial}}\nDocumento: {{documentType}} {{documentNumber}}\nEmail: {{email}}\nTeléfono: {{phone}}\nCondición IVA: {{condicionIva}}\n\n¿Confirmás que lo cree?',
+      created: 'Cliente creado correctamente en Solaris.',
+      error: 'No pude crear el cliente en Solaris.',
+    },
+    update: {
+      missingCustomer:
+        'Para actualizar un cliente necesito que indiques cuál cliente.',
+      missingFields:
+        'Para actualizar un cliente necesito que indiques qué dato querés cambiar.',
+      multipleCustomers:
+        'Encontré varios clientes para "{{query}}". Necesito que seas más específico.',
+      confirm:
+        'Entendí que querés actualizar el cliente "{{name}}":\n\nRazón social: {{razonSocial}}\nDocumento: {{documentType}} {{documentNumber}}\nEmail: {{email}}\nTeléfono: {{phone}}\nDirección: {{address}}\nCondición IVA: {{condicionIva}}\n\n¿Confirmás la operación?',
+      updated: 'Cliente actualizado correctamente en Solaris.',
+      error: 'No pude actualizar el cliente en Solaris.',
+    },
+    deactivate: {
+      missingCustomer:
+        'Para dar de baja un cliente necesito que indiques cuál cliente.',
+      multipleCustomers:
+        'Encontré varios clientes para "{{query}}". Necesito que seas más específico.',
+      confirm:
+        'Entendí que querés dar de baja al cliente:\n\nRazón social: {{name}}\nDocumento: {{documentNumber}}\nCondición IVA: {{condicionIva}}\n\n¿Confirmás la baja?',
+      deactivated: 'Cliente "{{name}}" dado de baja correctamente en Solaris.',
+      error: 'No pude dar de baja el cliente en Solaris.',
+    },
   },
   fiscalDocuments: {
     list: {

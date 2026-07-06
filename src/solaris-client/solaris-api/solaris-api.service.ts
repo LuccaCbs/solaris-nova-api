@@ -159,6 +159,16 @@ export interface CustomerResponseDto {
   updatedAt: string;
 }
 
+export interface CreateCustomerDto {
+  documentType: CustomerDocumentTypeDto;
+  documentNumber: string;
+  razonSocial: string;
+  email?: string;
+  phone?: string;
+  address?: string;
+  condicionIva: CustomerCondicionIvaDto;
+}
+
 export type FiscalDocumentStatusDto = 'PENDING' | 'AUTHORIZED' | 'REJECTED';
 
 export type TipoComprobanteDto = 'FACTURA_B' | 'FACTURA_C';
@@ -977,6 +987,64 @@ export class SolarisApiService {
     }
 
     return this.searchCustomers(trimmedQuery, authorization);
+  }
+
+  async createCustomer(
+    input: CreateCustomerDto,
+    authorization?: string,
+  ): Promise<CustomerResponseDto> {
+    const solarisApiUrl = this.configService.get<string>('SOLARIS_API_URL');
+
+    const response = await firstValueFrom(
+      this.httpService.post<CustomerResponseDto>(
+        `${solarisApiUrl}/api/v1/customers`,
+        input,
+        {
+          headers: authorization ? { Authorization: authorization } : undefined,
+        },
+      ),
+    );
+
+    return response.data;
+  }
+
+  async updateCustomer(
+    customerId: number,
+    input: CreateCustomerDto,
+    authorization?: string,
+  ): Promise<CustomerResponseDto> {
+    const solarisApiUrl = this.configService.get<string>('SOLARIS_API_URL');
+
+    const response = await firstValueFrom(
+      this.httpService.put<CustomerResponseDto>(
+        `${solarisApiUrl}/api/v1/customers/${customerId}`,
+        input,
+        {
+          headers: authorization ? { Authorization: authorization } : undefined,
+        },
+      ),
+    );
+
+    return response.data;
+  }
+
+  async deactivateCustomer(
+    customerId: number,
+    authorization?: string,
+  ): Promise<CustomerResponseDto> {
+    const solarisApiUrl = this.configService.get<string>('SOLARIS_API_URL');
+
+    const response = await firstValueFrom(
+      this.httpService.patch<CustomerResponseDto>(
+        `${solarisApiUrl}/api/v1/customers/${customerId}/deactivate`,
+        {},
+        {
+          headers: authorization ? { Authorization: authorization } : undefined,
+        },
+      ),
+    );
+
+    return response.data;
   }
 
   /*CUSTOMERS-END*/

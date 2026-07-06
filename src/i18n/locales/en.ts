@@ -285,6 +285,37 @@ export const en = {
       found: 'I found customer #{{id}}.',
       error: 'I could not fetch the customer details.',
     },
+    create: {
+      missingName: 'To create a customer I need the business name.',
+      missingDocumentNumber:
+        'To create a customer I need the document number (CUIT, CUIL or DNI).',
+      confirm:
+        'I understood that you want to create this customer:\n\nName: {{razonSocial}}\nDocument: {{documentType}} {{documentNumber}}\nEmail: {{email}}\nPhone: {{phone}}\nVAT status: {{condicionIva}}\n\nDo you confirm?',
+      created: 'Customer created successfully in Solaris.',
+      error: 'I could not create the customer in Solaris.',
+    },
+    update: {
+      missingCustomer:
+        'To update a customer I need to know which customer.',
+      missingFields:
+        'To update a customer I need to know which field to change.',
+      multipleCustomers:
+        'I found multiple customers for "{{query}}". Please be more specific.',
+      confirm:
+        'I understood that you want to update customer "{{name}}":\n\nName: {{razonSocial}}\nDocument: {{documentType}} {{documentNumber}}\nEmail: {{email}}\nPhone: {{phone}}\nAddress: {{address}}\nVAT status: {{condicionIva}}\n\nDo you confirm?',
+      updated: 'Customer updated successfully in Solaris.',
+      error: 'I could not update the customer in Solaris.',
+    },
+    deactivate: {
+      missingCustomer:
+        'To deactivate a customer I need to know which customer.',
+      multipleCustomers:
+        'I found multiple customers for "{{query}}". Please be more specific.',
+      confirm:
+        'I understood that you want to deactivate this customer:\n\nName: {{name}}\nDocument: {{documentNumber}}\nVAT status: {{condicionIva}}\n\nDo you confirm?',
+      deactivated: 'Customer "{{name}}" deactivated successfully in Solaris.',
+      error: 'I could not deactivate the customer in Solaris.',
+    },
   },
   fiscalDocuments: {
     list: {

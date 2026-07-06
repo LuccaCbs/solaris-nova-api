@@ -37,6 +37,22 @@ describe('IntentClassifierService', () => {
     );
     expect(service.classify('ver informe de productos')).toBe('export_report');
     expect(service.classify('exportar productos')).toBe('export_report');
+    expect(service.classify('exportar ventas')).toBe('export_report');
     expect(service.classify('ver ventas')).toBe('list_sales');
+  });
+
+  it('classifies customer CRUD intents', () => {
+    expect(service.classify('crear cliente Cliente Demo DNI 12345678')).toBe(
+      'create_customer',
+    );
+    expect(service.classify('actualizar cliente Cliente Demo email demo@test.com')).toBe(
+      'update_customer',
+    );
+    expect(service.classify('desactivar cliente Cliente Demo')).toBe(
+      'deactivate_customer',
+    );
+    expect(service.classify('buscar cliente Cliente Demo')).toBe(
+      'search_customer',
+    );
   });
 });

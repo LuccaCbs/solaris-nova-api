@@ -27,6 +27,9 @@ Internal intents must always be in English:
 - get_daily_sales_summary
 - search_customer
 - show_customer
+- create_customer
+- update_customer
+- deactivate_customer
 - list_fiscal_documents
 - show_fiscal_document
 - create_sale

@@ -25,6 +25,9 @@ export type NovaIntent =
   | 'show_sale'
   | 'get_daily_sales_summary'
   | 'export_report'
+  | 'create_customer'
+  | 'update_customer'
+  | 'deactivate_customer'
   | 'search_customer'
   | 'show_customer'
   | 'list_fiscal_documents'
@@ -62,6 +65,9 @@ export class IntentClassifierService {
     if (this.matchesShowFiscalDocument(text)) return 'show_fiscal_document';
     if (this.matchesListFiscalDocuments(text)) return 'list_fiscal_documents';
 
+    if (this.matchesCreateCustomer(text)) return 'create_customer';
+    if (this.matchesUpdateCustomer(text)) return 'update_customer';
+    if (this.matchesDeactivateCustomer(text)) return 'deactivate_customer';
     if (this.matchesShowCustomer(text)) return 'show_customer';
     if (this.matchesSearchCustomer(text)) return 'search_customer';
 
@@ -341,7 +347,7 @@ export class IntentClassifierService {
       /\b(ver\s+)?informe\b/i,
       /\binforme\s+de\b/i,
       /\b(ver\s+)?reporte\b/i,
-      /\bexportar\s+(informe|excel|reporte|productos|products)\b/i,
+      /\bexportar\s+(informe|excel|reporte|productos|products|ventas|sales)\b/i,
       /\bgenerar\s+(informe|excel|reporte)\b/i,
       /\b(export|generate)\s+(report|spreadsheet|excel|products)\b/i,
     ].some((pattern) => pattern.test(text));
@@ -424,6 +430,48 @@ export class IntentClassifierService {
       'sales today',
       'sales yesterday',
       'recent sales',
+    ]);
+  }
+
+  private matchesCreateCustomer(text: string): boolean {
+    return this.includesAny(text, [
+      'crear cliente',
+      'agregar cliente',
+      'nuevo cliente',
+      'registrar cliente',
+      'create customer',
+      'add customer',
+      'new customer',
+      'register customer',
+    ]);
+  }
+
+  private matchesUpdateCustomer(text: string): boolean {
+    return this.includesAny(text, [
+      'actualizar cliente',
+      'actualiza cliente',
+      'editar cliente',
+      'edita cliente',
+      'modificar cliente',
+      'modifica cliente',
+      'update customer',
+      'edit customer',
+      'modify customer',
+    ]);
+  }
+
+  private matchesDeactivateCustomer(text: string): boolean {
+    return this.includesAny(text, [
+      'eliminar cliente',
+      'elimina cliente',
+      'borrar cliente',
+      'borra cliente',
+      'desactivar cliente',
+      'desactiva cliente',
+      'dar de baja cliente',
+      'delete customer',
+      'remove customer',
+      'deactivate customer',
     ]);
   }
 
