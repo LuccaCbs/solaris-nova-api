@@ -160,7 +160,7 @@ export class SalesActionExtractor {
     const today = new Date();
     const toIso = (date: Date) => date.toISOString().split('T')[0];
 
-    if (/\b(hoy|today)\b/.test(normalized)) {
+    if (/\b(hoy|today|del\s+dia|of\s+the\s+day)\b/.test(normalized)) {
       return toIso(today);
     }
 

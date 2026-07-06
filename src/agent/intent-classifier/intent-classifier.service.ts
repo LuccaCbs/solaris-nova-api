@@ -334,16 +334,29 @@ export class IntentClassifierService {
   }
 
   private matchesDailySalesSummary(text: string): boolean {
-    return this.includesAny(text, [
-      'resumen de ventas',
-      'resumen ventas',
-      'resumen del dia',
-      'resumen del día',
-      'resumen diario de ventas',
-      'daily sales summary',
-      'sales summary',
-      'sales totals',
-    ]);
+    if (
+      this.includesAny(text, [
+        'resumen de ventas',
+        'resumen ventas',
+        'resumen del dia',
+        'resumen diario de ventas',
+        'resumen diario',
+        'ventas del dia',
+        'totales del dia',
+        'totales de ventas',
+        'daily sales summary',
+        'sales summary',
+        'sales totals',
+        'sales of the day',
+      ])
+    ) {
+      return true;
+    }
+
+    return [
+      /\b(ver|mostrar|muestra|show|view)\s+(?:el\s+)?resumen\s+(?:de\s+)?ventas\b/i,
+      /\bresumen\s+(?:de\s+)?ventas\s+(?:de\s+)?(?:hoy|ayer|del\s+dia)\b/i,
+    ].some((pattern) => pattern.test(text));
   }
 
   private matchesShowSale(text: string): boolean {
@@ -356,6 +369,10 @@ export class IntentClassifierService {
   }
 
   private matchesListSales(text: string): boolean {
+    if (this.matchesDailySalesSummary(text)) {
+      return false;
+    }
+
     return this.includesAny(text, [
       'listar ventas',
       'lista de ventas',
@@ -364,7 +381,6 @@ export class IntentClassifierService {
       'ventas de hoy',
       'ventas de ayer',
       'ultimas ventas',
-      'últimas ventas',
       'list sales',
       'show sales',
       'sales today',

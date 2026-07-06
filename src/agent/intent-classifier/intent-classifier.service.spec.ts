@@ -15,4 +15,16 @@ describe('IntentClassifierService', () => {
   it('should be defined', () => {
     expect(service).toBeDefined();
   });
+
+  it('classifies list sales separately from daily summary', () => {
+    expect(service.classify('ver ventas')).toBe('list_sales');
+    expect(service.classify('Ver ventas del día')).toBe(
+      'get_daily_sales_summary',
+    );
+    expect(service.classify('resumen de ventas de hoy')).toBe(
+      'get_daily_sales_summary',
+    );
+    expect(service.classify('ventas de hoy')).toBe('list_sales');
+    expect(service.classify('mostrar ventas')).toBe('list_sales');
+  });
 });
