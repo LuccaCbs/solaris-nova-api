@@ -341,9 +341,9 @@ export class IntentClassifierService {
       /\b(ver\s+)?informe\b/i,
       /\binforme\s+de\b/i,
       /\b(ver\s+)?reporte\b/i,
-      /\bexportar\s+(informe|excel|reporte)\b/i,
+      /\bexportar\s+(informe|excel|reporte|productos|products)\b/i,
       /\bgenerar\s+(informe|excel|reporte)\b/i,
-      /\b(export|generate)\s+(report|spreadsheet|excel)\b/i,
+      /\b(export|generate)\s+(report|spreadsheet|excel|products)\b/i,
     ].some((pattern) => pattern.test(text));
 
     if (!hasReportAction) {
@@ -354,6 +354,12 @@ export class IntentClassifierService {
       'ventas',
       'sales',
       'vendes',
+      'productos',
+      'products',
+      'producto',
+      'product',
+      'inventario',
+      'inventory',
       'mercaderia',
       'merchandise',
       'restock',

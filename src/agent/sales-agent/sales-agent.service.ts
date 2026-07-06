@@ -5,6 +5,7 @@ import {
   SaleResponseDto,
   SolarisApiService,
 } from '../../solaris-client/solaris-api/solaris-api.service';
+import { ProductResponseDto } from '../../solaris-client/dto/create-product.dto';
 import { NovaI18nService } from '../../i18n/nova-i18n/nova-i18n.service';
 import { ConfirmationStateService } from '../confirmation-state/confirmation-state.service';
 import {
@@ -28,6 +29,12 @@ export interface SalesExportReportResult {
   from: string;
   to: string;
   sales: SaleResponseDto[];
+  totalCount: number;
+}
+
+export interface ProductsExportReportResult {
+  module: 'products';
+  products: ProductResponseDto[];
   totalCount: number;
 }
 
@@ -140,7 +147,7 @@ export class SalesAgentService {
       };
     }
 
-    if (module !== 'sales') {
+    if (module !== 'sales' && module !== 'products') {
       return {
         type: 'message',
         intent,
@@ -148,6 +155,38 @@ export class SalesAgentService {
           module,
         }),
       };
+    }
+
+    if (module === 'products') {
+      try {
+        const products = (
+          await this.solarisApiService.searchProducts('', authorization)
+        ).sort((left, right) => left.name.localeCompare(right.name));
+
+        const result: ProductsExportReportResult = {
+          module: 'products',
+          products,
+          totalCount: products.length,
+        };
+
+        return {
+          type: 'tool_result',
+          intent,
+          message: this.novaI18n.t(language, 'reports.products.ready', {
+            count: products.length,
+          }),
+          data: result,
+        };
+      } catch (error: unknown) {
+        return {
+          type: 'error',
+          intent,
+          message: this.novaI18n.t(language, 'reports.products.error'),
+          data: {
+            errorMessage: error instanceof Error ? error.message : String(error),
+          },
+        };
+      }
     }
 
     const { from, to } = ReportActionExtractor.extractDateRange(message);

@@ -257,13 +257,18 @@ export const en = {
   },
   reports: {
     missingModule:
-      'I need to know which report to generate. Example: "Sales report for today".',
+      'I need to know which report to generate. Example: "Sales report for today" or "Products report".',
     moduleNotSupported:
-      'I cannot generate reports for "{{module}}" yet. Sales is available now.',
+      'I cannot generate reports for "{{module}}" yet. Sales and products are available now.',
     sales: {
       ready:
         'Done. The sales report has {{count}} record(s) from {{from}} to {{to}}. Use the link to download the Excel file.',
       error: 'I could not generate the sales report.',
+    },
+    products: {
+      ready:
+        'Done. The products report has {{count}} record(s). Use the link to download the Excel file.',
+      error: 'I could not generate the products report.',
     },
   },
   customers: {

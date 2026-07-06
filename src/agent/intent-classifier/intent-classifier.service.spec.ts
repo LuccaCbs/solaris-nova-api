@@ -35,6 +35,8 @@ describe('IntentClassifierService', () => {
     expect(service.classify('informe de ventas desde 01/07/2026 hasta 06/07/2026')).toBe(
       'export_report',
     );
+    expect(service.classify('ver informe de productos')).toBe('export_report');
+    expect(service.classify('exportar productos')).toBe('export_report');
     expect(service.classify('ver ventas')).toBe('list_sales');
   });
 });

@@ -255,13 +255,18 @@ export const es = {
   },
   reports: {
     missingModule:
-      'Necesito saber qué informe querés generar. Ejemplo: "Ver informe de ventas del día".',
+      'Necesito saber qué informe querés generar. Ejemplo: "Ver informe de ventas del día" o "Ver informe de productos".',
     moduleNotSupported:
-      'Todavía no puedo generar informes para "{{module}}". Por ahora está disponible ventas.',
+      'Todavía no puedo generar informes para "{{module}}". Por ahora están disponibles ventas y productos.',
     sales: {
       ready:
         'Listo. Generé el informe de ventas con {{count}} registro(s) del {{from}} al {{to}}. Usá el enlace para descargar el Excel.',
       error: 'No pude generar el informe de ventas.',
+    },
+    products: {
+      ready:
+        'Listo. Generé el informe de productos con {{count}} registro(s). Usá el enlace para descargar el Excel.',
+      error: 'No pude generar el informe de productos.',
     },
   },
   customers: {

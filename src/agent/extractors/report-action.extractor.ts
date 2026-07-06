@@ -1,4 +1,4 @@
-export type ReportModule = 'sales' | 'merchandise_intake';
+export type ReportModule = 'sales' | 'products' | 'merchandise_intake';
 
 export interface ReportDateRange {
   from: string;
@@ -11,6 +11,14 @@ export class ReportActionExtractor {
 
     if (/\b(ventas|sales|vendes)\b/.test(normalized)) {
       return 'sales';
+    }
+
+    if (
+      /\b(productos|products|producto|product|inventario|inventory|catalogo|catalog)\b/.test(
+        normalized,
+      )
+    ) {
+      return 'products';
     }
 
     if (
