@@ -170,6 +170,7 @@ export const fr: typeof en = {
     },
   },
   sales: en.sales,
+  reports: en.reports,
   customers: en.customers,
   fiscalDocuments: en.fiscalDocuments,
 };

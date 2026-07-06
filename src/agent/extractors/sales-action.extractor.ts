@@ -32,6 +32,38 @@ export class SalesActionExtractor {
     };
   }
 
+  private static stripCreateSalePrefix(message: string): string {
+    return message
+      .replace(
+        /^\s*(?:crear|crea|registrar|registra|nueva|new|create|register)\s+(?:una\s+)?venta\s*/i,
+        '',
+      )
+      .replace(/^\s*(?:crear|crea|register|create)\s+sale\s*/i, '')
+      .trim();
+  }
+
+  private static stripLeadingPaymentMethod(text: string): string {
+    const paymentPatterns = [
+      /^(?:en\s+)?(?:efectivo|cash|contado)\s+/i,
+      /^(?:en\s+)?(?:tarjeta\s+de\s+debito|debito|debit\s+card|debit)\s+/i,
+      /^(?:en\s+)?(?:tarjeta\s+de\s+credito|credito|credit\s+card|credit)\s+/i,
+      /^(?:en\s+)?(?:tarjeta)\s+/i,
+      /^(?:en\s+)?(?:transferencia|transfer)\s+/i,
+      /^(?:en\s+)?(?:otro|other)\s+/i,
+    ];
+
+    let result = text.trim();
+
+    for (const pattern of paymentPatterns) {
+      if (pattern.test(result)) {
+        result = result.replace(pattern, '').trim();
+        break;
+      }
+    }
+
+    return result.replace(/^con\s+/i, '').trim();
+  }
+
   static extractPaymentMethod(
     message: string,
   ): SalePaymentMethodDto | undefined {
@@ -49,7 +81,7 @@ export class SalesActionExtractor {
     }
 
     if (
-      /\b(tarjeta\s+de\s+credito|credito|credit\s+card|credit)\b/.test(
+      /\b(tarjeta\s+de\s+credito|credito|credit\s+card|credit|tarjeta)\b/.test(
         normalized,
       )
     ) {
@@ -82,7 +114,10 @@ export class SalesActionExtractor {
       }
     }
 
-    return '';
+    const withoutPrefix = this.stripCreateSalePrefix(message);
+    const withoutPayment = this.stripLeadingPaymentMethod(withoutPrefix);
+
+    return withoutPayment;
   }
 
   private static extractItems(text: string): CreateSaleItemDraft[] {
@@ -101,7 +136,20 @@ export class SalesActionExtractor {
   }
 
   private static extractItem(chunk: string): CreateSaleItemDraft | undefined {
-    const match = chunk.match(
+    const trimmed = chunk.trim();
+
+    const suffixQuantityMatch = trimmed.match(/^(.+?)\s+x\s*(\d+)\s*$/i);
+
+    if (suffixQuantityMatch) {
+      const productQuery = this.cleanProductQuery(suffixQuantityMatch[1]);
+      const quantity = Number(suffixQuantityMatch[2]);
+
+      if (productQuery && !Number.isNaN(quantity) && quantity > 0) {
+        return { productQuery, quantity };
+      }
+    }
+
+    const match = trimmed.match(
       /(?:(\d+)\s*(?:unidades|unidad|units|unit|u|x)?\s+(.+)|(.+?)\s*(?:x|por)\s*(\d+))/i,
     );
 
@@ -125,7 +173,7 @@ export class SalesActionExtractor {
   ): string | undefined {
     const cleaned = value
       ?.trim()
-      .replace(/^(product|products|producto|productos)\s+/i, '')
+      .replace(/^(products|productos)\s+/i, '')
       .replace(/\s+(quantity|cantidad)$/i, '')
       .replace(/^["']|["']$/g, '')
       .replace(/\s+/g, ' ');
