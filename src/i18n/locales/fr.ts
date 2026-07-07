@@ -171,6 +171,53 @@ export const fr: typeof en = {
   },
   sales: en.sales,
   reports: en.reports,
-  customers: en.customers,
+  customers: {
+    search: {
+      askQuery:
+        'Indiquez quel client rechercher. Exemple : "Rechercher client Client démo".',
+      found: 'J’ai trouvé {{count}} client(s) pour « {{query}} ».',
+      notFound: 'Je n’ai trouvé aucun client pour « {{query}} ».',
+      error: 'Impossible de rechercher les clients dans Solaris.',
+    },
+    show: {
+      missingCustomerId:
+        'J’ai besoin du numéro de client. Exemple : "Voir client #5".',
+      found: 'J’ai trouvé le client #{{id}}.',
+      error: 'Impossible d’obtenir le détail du client.',
+    },
+    create: {
+      missingName:
+        'Pour créer un client, j’ai besoin de la raison sociale.',
+      missingDocumentNumber:
+        'Pour créer un client, j’ai besoin du numéro de document (CUIT, CUIL ou DNI).',
+      confirm:
+        'J’ai compris que vous souhaitez créer ce client :\n\nRaison sociale : {{razonSocial}}\nDocument : {{documentType}} {{documentNumber}}\nE-mail : {{email}}\nTéléphone : {{phone}}\nCondition TVA : {{condicionIva}}\n\nConfirmez-vous ?',
+      created: 'Client créé avec succès dans Solaris.',
+      error: 'Impossible de créer le client dans Solaris.',
+    },
+    update: {
+      missingCustomer:
+        'Pour mettre à jour un client, j’ai besoin de savoir lequel.',
+      missingFields:
+        'Pour mettre à jour un client, j’ai besoin de savoir quelle information modifier.',
+      multipleCustomers:
+        'Plusieurs clients correspondent à « {{query}} ». Soyez plus précis.',
+      confirm:
+        'J’ai compris que vous souhaitez mettre à jour le client « {{name}} » :\n\nRaison sociale : {{razonSocial}}\nDocument : {{documentType}} {{documentNumber}}\nE-mail : {{email}}\nTéléphone : {{phone}}\nAdresse : {{address}}\nCondition TVA : {{condicionIva}}\n\nConfirmez-vous ?',
+      updated: 'Client mis à jour avec succès dans Solaris.',
+      error: 'Impossible de mettre à jour le client dans Solaris.',
+    },
+    deactivate: {
+      missingCustomer:
+        'Pour désactiver un client, j’ai besoin de savoir lequel.',
+      multipleCustomers:
+        'Plusieurs clients correspondent à « {{query}} ». Soyez plus précis.',
+      confirm:
+        'J’ai compris que vous souhaitez désactiver ce client :\n\nRaison sociale : {{name}}\nDocument : {{documentNumber}}\nCondition TVA : {{condicionIva}}\n\nConfirmez-vous ?',
+      deactivated:
+        'Client « {{name}} » désactivé avec succès dans Solaris.',
+      error: 'Impossible de désactiver le client dans Solaris.',
+    },
+  },
   fiscalDocuments: en.fiscalDocuments,
 };

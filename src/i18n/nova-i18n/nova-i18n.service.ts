@@ -1,6 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { es } from '../locales/es';
 import { en } from '../locales/en';
+import { fr } from '../locales/fr';
+import { ca } from '../locales/ca';
 
 type TranslationParams = Record<string, string | number>;
 
@@ -9,6 +11,8 @@ export class NovaI18nService {
   private readonly dictionaries = {
     es,
     en,
+    fr,
+    ca,
   };
 
   t(language: string | undefined, key: string, params: TranslationParams = {}) {
@@ -18,6 +22,7 @@ export class NovaI18nService {
     const template =
       this.getNestedValue(dictionary, key) ??
       this.getNestedValue(this.dictionaries.es, key) ??
+      this.getNestedValue(this.dictionaries.en, key) ??
       key;
 
     return this.interpolate(template, params);
@@ -27,6 +32,9 @@ export class NovaI18nService {
     const normalized = language?.toLowerCase() ?? 'es';
 
     if (normalized.startsWith('en')) return 'en';
+    if (normalized.startsWith('fr')) return 'fr';
+    if (normalized.startsWith('ca') || normalized.startsWith('mq')) return 'ca';
+
     return 'es';
   }
 

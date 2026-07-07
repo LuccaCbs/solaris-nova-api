@@ -151,6 +151,53 @@ export const ca: typeof en = {
   },
   sales: en.sales,
   reports: en.reports,
-  customers: en.customers,
+  customers: {
+    search: {
+      askQuery:
+        'Indica quin client vols cercar. Exemple: "Cercar client Client demo".',
+      found: 'He trobat {{count}} client(s) per a "{{query}}".',
+      notFound: 'No he trobat clients per a "{{query}}".',
+      error: 'No he pogut cercar clients a Solaris.',
+    },
+    show: {
+      missingCustomerId:
+        'Necessito el número de client. Exemple: "Veure client #5".',
+      found: 'He trobat el client #{{id}}.',
+      error: 'No he pogut obtenir el detall del client.',
+    },
+    create: {
+      missingName:
+        'Per crear un client necessito que indiquis la raó social.',
+      missingDocumentNumber:
+        'Per crear un client necessito el número de document (CUIT, CUIL o DNI).',
+      confirm:
+        'He entès que vols crear aquest client:\n\nRaó social: {{razonSocial}}\nDocument: {{documentType}} {{documentNumber}}\nCorreu: {{email}}\nTelèfon: {{phone}}\nCondició IVA: {{condicionIva}}\n\nHo confirmes?',
+      created: 'Client creat correctament a Solaris.',
+      error: 'No he pogut crear el client a Solaris.',
+    },
+    update: {
+      missingCustomer:
+        'Per actualitzar un client necessito que indiquis quin client.',
+      missingFields:
+        'Per actualitzar un client necessito que indiquis què vols canviar.',
+      multipleCustomers:
+        'He trobat diversos clients per a "{{query}}". Necessito que siguis més específic.',
+      confirm:
+        'He entès que vols actualitzar el client "{{name}}":\n\nRaó social: {{razonSocial}}\nDocument: {{documentType}} {{documentNumber}}\nCorreu: {{email}}\nTelèfon: {{phone}}\nAdreça: {{address}}\nCondició IVA: {{condicionIva}}\n\nConfirmes l\'operació?',
+      updated: 'Client actualitzat correctament a Solaris.',
+      error: 'No he pogut actualitzar el client a Solaris.',
+    },
+    deactivate: {
+      missingCustomer:
+        'Per donar de baixa un client necessito que indiquis quin client.',
+      multipleCustomers:
+        'He trobat diversos clients per a "{{query}}". Necessito que siguis més específic.',
+      confirm:
+        'He entès que vols donar de baixa el client:\n\nRaó social: {{name}}\nDocument: {{documentNumber}}\nCondició IVA: {{condicionIva}}\n\nConfirmes la baixa?',
+      deactivated:
+        'Client "{{name}}" donat de baixa correctament a Solaris.',
+      error: 'No he pogut donar de baixa el client a Solaris.',
+    },
+  },
   fiscalDocuments: en.fiscalDocuments,
 };
