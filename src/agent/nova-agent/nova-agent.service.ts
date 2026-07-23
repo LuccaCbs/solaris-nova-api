@@ -88,6 +88,11 @@ export class NovaAgentService {
     }
 
     if (pendingAction && this.confirmationState.isConfirmation(message)) {
+      console.log('[Nova] Confirming pending action:', {
+        intent: pendingAction.intent,
+        hasAuthorization: Boolean(authorization),
+      });
+
       if (pendingAction.intent === 'update_product') {
         return this.productAgentService.confirmUpdateProduct(
           pendingAction.data as UpdateProductDraft,

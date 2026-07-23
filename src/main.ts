@@ -26,9 +26,12 @@ async function bootstrap() {
     }),
   );
 
+  const solarisApiUrl = configService.get<string>('SOLARIS_API_URL');
+
   await app.listen(port);
 
   console.log(`Nova Copilot API running on port ${port}`);
+  console.log(`Solaris API URL: ${solarisApiUrl ?? '(not set)'}`);
 }
 
 bootstrap();

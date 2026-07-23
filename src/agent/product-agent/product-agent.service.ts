@@ -6,6 +6,7 @@ import { CategoryResolverService } from '../category-resolver/category-resolver.
 import { NovaI18nService } from '../../i18n/nova-i18n/nova-i18n.service';
 import { PendingAction } from '../confirmation-state/pending-action.interface';
 import { ProductResponseDto } from '../../solaris-client/dto/create-product.dto';
+import { extractNovaErrorDetails } from '../../common/nova-error.util';
 import {
   ProductActionExtractor,
   UpdateStockDraft,
@@ -106,22 +107,45 @@ export class ProductAgentService {
       }
     }
 
+    if (categoryId === undefined) {
+      console.log(
+        '[Nova] createProduct: no category in draft, resolving default "General"',
+      );
+      categoryId = await this.resolveDefaultCategoryId(authorization);
+      console.log(
+        '[Nova] createProduct: resolved categoryId=',
+        categoryId ?? 'NOT_FOUND',
+      );
+    }
+
+    const payload = {
+      name: draft.name!,
+      description: this.novaI18n.t(
+        language,
+        'products.create.defaultDescription',
+      ),
+      barcode: '',
+      price: draft.price!,
+      stockQuantity: draft.stock!,
+      lowStockThreshold: 10,
+      categoryId,
+    };
+
+    console.log('[Nova] createProduct: calling Solaris API', {
+      name: payload.name,
+      price: payload.price,
+      stockQuantity: payload.stockQuantity,
+      categoryId: payload.categoryId,
+      hasAuthorization: Boolean(authorization),
+    });
+
     try {
       const result = await this.solarisApiService.createProduct(
-        {
-          name: draft.name!,
-          description: this.novaI18n.t(
-            language,
-            'products.create.defaultDescription',
-          ),
-          barcode: '',
-          price: draft.price!,
-          stockQuantity: draft.stock!,
-          lowStockThreshold: 10,
-          categoryId,
-        },
+        payload,
         authorization,
       );
+
+      console.log('[Nova] createProduct: success', { productId: result.id });
 
       this.confirmationState.clearPendingAction();
 
@@ -132,12 +156,21 @@ export class ProductAgentService {
         data: result,
       };
     } catch (error: unknown) {
+      const errorDetails = extractNovaErrorDetails(error);
+
+      console.error('[Nova] createProduct failed:', {
+        draft,
+        ...errorDetails,
+        hasAuthorization: Boolean(authorization),
+      });
+
       return this.buildErrorResponse(
         pendingAction.intent,
         this.novaI18n.t(language, 'products.create.error'),
         {
           draft,
-          errorMessage: this.getErrorMessage(error),
+          errorMessage: errorDetails.message,
+          errorDetails,
         },
       );
     }
@@ -1010,6 +1043,21 @@ export class ProductAgentService {
       .replace(/[\u0300-\u036f]/g, '')
       .toLowerCase()
       .trim();
+  }
+
+  private async resolveDefaultCategoryId(
+    authorization?: string,
+  ): Promise<number | undefined> {
+    const categories = await this.solarisApiService.searchCategoriesByName(
+      'General',
+      authorization,
+    );
+
+    const exactMatch = categories.find(
+      (category) => category.name.toLowerCase() === 'general',
+    );
+
+    return exactMatch?.id ?? categories[0]?.id;
   }
 
   private getErrorMessage(error: unknown): string {

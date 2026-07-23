@@ -274,14 +274,24 @@ export class SolarisApiService {
         error?: string;
       }>;
 
-      throw new BadGatewayException({
+      const failureDetails = {
         message: 'Error al llamar a Solaris API.',
         solarisStatus: axiosError.response?.status,
         solarisMessage: axiosError.response?.data?.message,
         solarisError: axiosError.response?.data?.error,
         requestUrl: `${solarisApiUrl}/api/v1/products`,
         requestPayload: input,
+      };
+
+      console.error('[Nova] Solaris API createProduct failed:', {
+        ...failureDetails,
+        hasAuthorization: Boolean(authorization),
+        axiosCode: axiosError.code,
+        axiosMessage: axiosError.message,
+        responseData: axiosError.response?.data,
       });
+
+      throw new BadGatewayException(failureDetails);
     }
   }
 
